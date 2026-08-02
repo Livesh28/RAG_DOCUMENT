@@ -1,15 +1,25 @@
 # UniGuide AI – Indian University Information Assistant (Executive RAG)
 
-> A production-ready, full-stack Retrieval-Augmented Generation (RAG) assistant designed for Indian University students to query official PDF documents (admission guidelines, fee structures, examination rules, syllabus) with **zero hallucinations**, **dynamic confidence ratings**, and **clean direct answers**.
+> A production-ready, full-stack Retrieval-Augmented Generation (RAG) assistant designed for Indian University students to query official PDF documents (admission guidelines, fee structures, examination schedules, and more).
 
 ![UniGuide AI Dashboard Preview](docs/images/dashboard_preview.png)
+
+---
+
+## 🎬 Demo Video
+
+[![UniGuide AI Demo](docs/images/demo_thumbnail.png)](docs/videos/demo.mp4)
+
+**Watch the full demo:** [View Demo Video](docs/videos/demo.mp4)
+
+See UniGuide AI in action as it processes university PDFs, answers student queries with confidence scores, and exports chat sessions in real-time.
 
 ---
 
 ## 🌟 Key Features & Recent Advancements
 
 - 🎯 **Clean Direct Answers**: Strips away OCR noise, raw context headers, and document tags to present concise, exact answers directly to the student.
-- ⚡ **Dynamic RAG Confidence Score Engine**: Calculates real-time mathematical confidence scores ($0.0 - 1.0$) and qualitative ratings (`High Confidence`, `Medium Confidence`, `Low Confidence`) for every generated answer.
+- ⚡ **Dynamic RAG Confidence Score Engine**: Calculates real-time mathematical confidence scores ($0.0 - 1.0$) and qualitative ratings (`High Confidence`, `Medium Confidence`, `Low Confidence`) for every response.
 - 📄 **Page-Level Vector Ingestion**: Extracts text page-by-page using PyMuPDF (`fitz`) while maintaining precise source and page metadata across chunking stages.
 - 🎙️ **Voice Input Support**: Integrated Web Speech Recognition API allowing hands-free voice questions in the interactive chat interface.
 - 💾 **Export Chat Guidance**: Export full student Q&A sessions into formatted Markdown (`.md`) files for printing or offline review.
@@ -143,7 +153,7 @@ docker-compose up -d --build
 
 ```json
 {
-  "answer": "Nirmala Institute of Technology (NiT) offers 3-year Diploma engineering courses in Mechanical, Civil, Chemical, Automobile, and Electrical Engineering.\n\n**Eligibility**: Candidates who have passed SSLC / THSLC or equivalent examination with Mathematics, English & Science subjects are eligible to apply.",
+  "answer": "Nirmala Institute of Technology (NiT) offers 3-year Diploma engineering courses in Mechanical, Civil, Chemical, Automobile, and Electrical Engineering.\n\n**Eligibility**: Candidates who have completed 10+2 with Physics and Mathematics.",
   "sources": [],
   "execution_time_ms": 1240.5,
   "confidence_score": 0.92,
@@ -156,4 +166,3 @@ docker-compose up -d --build
 ## 🛡️ License
 
 Distributed under the MIT License. See `LICENSE` for details.
-
