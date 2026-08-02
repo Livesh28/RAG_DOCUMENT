@@ -8,9 +8,13 @@
 
 ## 🎬 Demo Video
 
-[![UniGuide AI Demo](docs/images/demo_thumbnail.png)](https://drive.google.com/file/d/1KwtBSWSbu_Wxh8rFHdeJNfqwqW006rmq/view?usp=sharing)
+<div align="center">
+<iframe src="https://drive.google.com/file/d/1KwtBSWSbu_Wxh8rFHdeJNfqwqW006rmq/preview" width="720" height="420" allow="autoplay; encrypted-media" frameborder="0"></iframe>
+</div>
 
-**Watch the full demo:** [View Demo Video](https://drive.google.com/file/d/1KwtBSWSbu_Wxh8rFHdeJNfqwqW006rmq/view?usp=sharing)
+**Watch the full demo (Google Drive):** [View Demo Video](https://drive.google.com/file/d/1KwtBSWSbu_Wxh8rFHdeJNfqwqW006rmq/view?usp=sharing)
+
+> Note: GitHub's README rendering may strip or block iframes for security; if the inline preview does not display on GitHub, use the link above to view the video on Google Drive. For embedding in GitHub Pages or other HTML-capable renderers, the preview iframe will work.
 
 See UniGuide AI in action as it processes university PDFs, answers student queries with confidence scores, and exports chat sessions in real-time.
 
