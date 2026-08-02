@@ -77,6 +77,18 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, onSelectCitat
                 {(message.execution_time_ms / 1000).toFixed(2)}s
               </span>
             )}
+            {!isUser && message.confidence_label && (
+              <span className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full border font-mono font-bold ${
+                message.confidence_label === 'High Confidence'
+                  ? 'text-emerald-800 bg-emerald-50 border-emerald-300'
+                  : message.confidence_label === 'Medium Confidence'
+                  ? 'text-amber-800 bg-amber-50 border-amber-300'
+                  : 'text-slate-700 bg-slate-100 border-slate-300'
+              }`}>
+                <Sparkles className="w-3 h-3 text-indigo-500" />
+                {message.confidence_score ? `${Math.round(message.confidence_score * 100)}% ` : ''}{message.confidence_label}
+              </span>
+            )}
           </div>
 
           <div className="flex items-center gap-1.5">

@@ -22,8 +22,10 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     """
     Schema for RAG assistant response containing generated answer, page-level citations,
-    and pipeline execution latency.
+    pipeline execution latency, and confidence scores.
     """
     answer: str = Field(..., description="AI generated answer based strictly on retrieved context")
-    sources: List[SourceCitation] = Field(..., description="Unique citations referencing source PDFs and pages")
+    sources: List[SourceCitation] = Field(default=[], description="Unique citations referencing source PDFs and pages")
     execution_time_ms: Optional[float] = Field(None, description="Execution time in milliseconds")
+    confidence_score: Optional[float] = Field(None, description="RAG answer confidence score (0.0 to 1.0)")
+    confidence_label: Optional[str] = Field(None, description="Confidence rating: High, Medium, or Low")

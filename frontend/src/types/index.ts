@@ -35,6 +35,8 @@ export interface ChatMessage {
   sources?: SourceCitation[];
   timestamp: string;
   execution_time_ms?: number;
+  confidence_score?: number;
+  confidence_label?: string;
   isError?: boolean;
   document_name?: string;
   feedback?: 'like' | 'dislike' | null;

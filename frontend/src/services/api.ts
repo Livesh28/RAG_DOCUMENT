@@ -49,8 +49,8 @@ export const apiService = {
     question: string,
     documentName?: string,
     conversationHistory: { role: string; content: string }[] = []
-  ): Promise<{ answer: string; sources: SourceCitation[]; execution_time_ms?: number }> {
-    const response = await apiClient.post<{ answer: string; sources: SourceCitation[]; execution_time_ms?: number }>('/chat', {
+  ): Promise<{ answer: string; sources: SourceCitation[]; execution_time_ms?: number; confidence_score?: number; confidence_label?: string }> {
+    const response = await apiClient.post<{ answer: string; sources: SourceCitation[]; execution_time_ms?: number; confidence_score?: number; confidence_label?: string }>('/chat', {
       question,
       document_name: documentName || null,
       conversation_history: conversationHistory,

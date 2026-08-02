@@ -94,6 +94,8 @@ export const App: React.FC = () => {
         text: res.answer,
         sources: res.sources,
         execution_time_ms: res.execution_time_ms,
+        confidence_score: res.confidence_score,
+        confidence_label: res.confidence_label,
         document_name: documentName,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };

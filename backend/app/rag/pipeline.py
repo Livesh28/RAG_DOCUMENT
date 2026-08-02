@@ -371,10 +371,24 @@ class RAGPipeline:
             return ChatResponse(
                 answer="I couldn't find this information in the uploaded university documents.",
                 sources=[],
-                execution_time_ms=elapsed_ms
+                execution_time_ms=elapsed_ms,
+                confidence_score=0.0,
+                confidence_label="Uncertain"
             )
 
-        # 2. Extract context text
+        # 2. Calculate Confidence Metric Score based on top vector match score
+        top_distance = search_results[0][1]
+        if top_distance < 0.4:
+            conf_score = round(max(0.88, 1.0 - (top_distance * 0.2)), 2)
+            conf_label = "High Confidence"
+        elif top_distance < 0.7:
+            conf_score = round(max(0.68, 0.90 - (top_distance * 0.25)), 2)
+            conf_label = "Medium Confidence"
+        else:
+            conf_score = round(max(0.45, 0.65 - (top_distance * 0.25)), 2)
+            conf_label = "Low Confidence"
+
+        # 3. Extract context text
         context_blocks: List[str] = []
 
         for doc, score in search_results:
@@ -384,7 +398,7 @@ class RAGPipeline:
 
         formatted_context = "\n\n".join(context_blocks)
 
-        # 3. Check Gemini API client availability
+        # 4. Check Gemini API client availability
         if not self.client:
             logger.info("Using local multi-entity exact-answer extraction engine.")
             direct_answer = self._synthesize_direct_answer(search_results, question)
@@ -393,10 +407,12 @@ class RAGPipeline:
             return ChatResponse(
                 answer=cleaned_ans,
                 sources=[],
-                execution_time_ms=elapsed_ms
+                execution_time_ms=elapsed_ms,
+                confidence_score=conf_score,
+                confidence_label=conf_label
             )
 
-        # 4. Construct prompt and attempt model execution with fallbacks
+        # 5. Construct prompt and attempt model execution with fallbacks
         prompt = self.SYSTEM_PROMPT.format(context=formatted_context)
         models_to_try = [self.primary_model] + [m for m in self.FALLBACK_MODELS if m != self.primary_model]
         
@@ -431,7 +447,9 @@ class RAGPipeline:
             return ChatResponse(
                 answer=cleaned_ans,
                 sources=[],
-                execution_time_ms=elapsed_ms
+                execution_time_ms=elapsed_ms,
+                confidence_score=conf_score,
+                confidence_label=conf_label
             )
         else:
             logger.warning(f"Gemini API models failed ({last_exception}). Falling back to exact-answer extraction.")
@@ -440,6 +458,8 @@ class RAGPipeline:
             return ChatResponse(
                 answer=cleaned_ans,
                 sources=[],
-                execution_time_ms=elapsed_ms
+                execution_time_ms=elapsed_ms,
+                confidence_score=conf_score,
+                confidence_label=conf_label
             )
 
