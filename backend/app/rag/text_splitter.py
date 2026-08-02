@@ -55,12 +55,8 @@ class ChunkingService:
                 chunk_metadata = metadata.copy()
                 chunk_metadata["chunk_index"] = idx
                 
-                # Contextual Header Injection for enhanced vector retrieval accuracy
-                context_header = f"[Document: {page['source']} | Page: {page['page']}]\n"
-                contextual_content = context_header + chunk_str.strip()
-
                 doc = Document(
-                    page_content=contextual_content,
+                    page_content=chunk_str.strip(),
                     metadata=chunk_metadata
                 )
                 documents.append(doc)

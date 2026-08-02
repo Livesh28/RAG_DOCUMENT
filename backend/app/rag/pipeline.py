@@ -19,12 +19,13 @@ class RAGPipeline:
         "You are UniGuide AI, an official university information assistant for Indian Universities.\n"
         "Your sole task is to answer user questions using ONLY the provided official university document context.\n\n"
         "STRICT GUIDELINES:\n"
-        "1. Give ONLY the exact direct answer to what was asked. Do not include unwanted details or raw unformatted text.\n"
-        "2. Fix any OCR typos automatically (e.g. write 'New Delhi' instead of 'Nem Delhi', 'Affiliated to' instead of '4t Mamed').\n"
-        "3. Keep the answer extremely concise, structured, and easy to read (1-3 sentences maximum).\n"
-        "4. If the context does not contain enough information to answer the question, reply EXACTLY with:\n"
+        "1. Give ONLY the exact direct answer to what was asked. Do NOT include document names, file names, page numbers, citations, or phrases like 'According to Document...'.\n"
+        "2. Do NOT output headers like 'Extracted Knowledge Details:' or source tags. Provide only the clean answer.\n"
+        "3. Fix any OCR typos automatically (e.g. write 'New Delhi' instead of 'Nem Delhi', 'Affiliated to' instead of '4t Mamed').\n"
+        "4. Keep the answer extremely concise, structured, and easy to read (1-3 sentences maximum).\n"
+        "5. If the context does not contain enough information to answer the question, reply EXACTLY with:\n"
         "   \"I couldn't find this information in the uploaded university documents.\"\n"
-        "5. NEVER make up facts, dates, fee amounts, or procedures. Zero hallucination.\n\n"
+        "6. NEVER make up facts, dates, fee amounts, or procedures. Zero hallucination.\n\n"
         "Retrieved Document Context:\n"
         "---------------------------\n"
         "{context}\n"
@@ -58,17 +59,21 @@ class RAGPipeline:
 
     def _clean_text_noise(self, text: str) -> str:
         """
-        Strips OCR scanner artifacts, repeating step words, junk headers, and normalizes PDF bullet symbols.
+        Strips document/page headers, OCR scanner artifacts, repeating step words, junk headers, and normalizes PDF bullet symbols.
         """
-        # 1. Convert corrupt PDF bullet symbols (Ÿ, \x9f, \uf0b7, •, etc.) into clean bullet delimiters
-        cleaned = re.sub(r'[Ÿ•▪✦★\u0178\x9f\uf0b7\u2022\u25cf\u25aa\u2013\u2014]+', ' \n• ', text)
+        # 1. Strip document and page header noise like [Document: news1.pdf | Page: 7] or [Source: ...] or Document: ...
+        cleaned = re.sub(r'\[?(?:Document|Source):\s*[^\]\n]+\|?\s*(?:Page:\s*\d+)?\]?:?', '', text, flags=re.IGNORECASE)
+        cleaned = re.sub(r'\[?Page:\s*\d+\]?', '', cleaned, flags=re.IGNORECASE)
 
-        # 2. Remove repeated noise words like STEP 1 STEP 2 STEP 3
+        # 2. Convert corrupt PDF bullet symbols (Ÿ, \x9f, \uf0b7, •, etc.) into clean bullet delimiters
+        cleaned = re.sub(r'[Ÿ•▪✦★\u0178\x9f\uf0b7\u2022\u25cf\u25aa\u2013\u2014]+', ' \n• ', cleaned)
+
+        # 3. Remove repeated noise words like STEP 1 STEP 2 STEP 3
         cleaned = re.sub(r'(?:\bSTEP\s*\d*\s*){2,}', ' ', cleaned, flags=re.IGNORECASE)
         cleaned = re.sub(r'\b\d+\s+STEP\b', ' ', cleaned, flags=re.IGNORECASE)
         cleaned = re.sub(r'\b(STEP|PROGRAM FOR COMPLETE CORPORATE CITIZENS|INDUSTRY READY CURRICULUM)\s+\1\b', r'\1', cleaned, flags=re.IGNORECASE)
         
-        # 3. Clean common OCR typos in content
+        # 4. Clean common OCR typos in content
         ocr_replacements = [
             (r"\bNem Delhi\b", "New Delhi"),
             (r"\b4t Mamed\b", "Affiliated to"),
@@ -90,13 +95,13 @@ class RAGPipeline:
         for pattern, repl in ocr_replacements:
             cleaned = re.sub(pattern, repl, cleaned, flags=re.IGNORECASE)
 
-        # 4. Normalize spaces
+        # 5. Normalize spaces
         cleaned = re.sub(r'[ \t]+', ' ', cleaned).strip()
         return cleaned
 
     def _extract_coherent_sentences(self, content: str, question: str) -> str:
         """
-        Merges broken PDF lines, eliminates dangling conjunctions, strips junk symbols like Ÿ, and extracts complete bullet items.
+        Merges broken PDF lines, eliminates dangling conjunctions, strips junk symbols like Ÿ, and extracts clean bullet items.
         """
         cleaned_full = self._clean_text_noise(content)
 
@@ -147,15 +152,15 @@ class RAGPipeline:
         if scored:
             top_items = [it[1] for it in scored[:5]]
             bullets = "\n".join([f"- {it}" for it in top_items])
-            return f"**Extracted Knowledge Details**:\n{bullets}"
+            return bullets
 
         # Fallback to first coherent items
         first_valid = unique_items[:4]
         if first_valid:
             bullets = "\n".join([f"- {it}" for it in first_valid])
-            return f"**Extracted Knowledge Details**:\n{bullets}"
+            return bullets
 
-        return f"**Document Summary**:\n{cleaned_full[:300].strip()}..."
+        return cleaned_full[:300].strip()
 
     def _extract_exact_fact(self, content: str, question: str) -> str:
         """
@@ -221,7 +226,7 @@ class RAGPipeline:
 
     def _synthesize_direct_answer(self, search_results: List[Tuple[Any, float]], question: str) -> str:
         """
-        Synthesizes a clean, concise, exact answer directly addressing the user question.
+        Synthesizes a clean, concise, exact answer directly addressing the user question without document headers or citations.
         """
         stop_words = {'what', 'is', 'the', 'for', 'in', 'of', 'a', 'an', 'to', 'and', 'or', 'are', 'with', 'does', 'do', 'can', 'how', 'tell', 'me', 'about', 'details'}
         q_keywords = [w.lower() for w in re.findall(r'\w+', question) if w.lower() not in stop_words]
@@ -255,17 +260,30 @@ class RAGPipeline:
             # Combine content from top 2-3 matching chunks to build a multi-page answer
             top_chunks = relevant_chunks[:3]
             combined_content = "\n\n".join([c[3] for c in top_chunks])
-            primary_source = top_chunks[0][1]
-            primary_page = top_chunks[0][2]
 
             exact_fact = self._extract_exact_fact(combined_content, question)
-
-            return (
-                f"{exact_fact}\n\n"
-                f"*(Source: **{primary_source}** | Page {primary_page})*"
-            )
+            return exact_fact
 
         return "I couldn't find specific details for your query in the uploaded university documents. Please try asking about course offerings, admission criteria, or fee structures."
+
+    def _clean_answer_output(self, answer: str) -> str:
+        """
+        Strips any remaining document names, page numbers, or citation headers from final answer text.
+        """
+        if not answer:
+            return ""
+        # Strip document / source / page tags
+        cleaned = re.sub(r'\[?(?:Document|Source):\s*[^\]\n]+\|?\s*(?:Page:\s*\d+)?\]?:?', '', answer, flags=re.IGNORECASE)
+        cleaned = re.sub(r'\[?Page:\s*\d+\]?', '', cleaned, flags=re.IGNORECASE)
+        cleaned = re.sub(r'\*\*\s*Extracted Knowledge Details\s*\*\*:?', '', cleaned, flags=re.IGNORECASE)
+        cleaned = re.sub(r'\*\*\s*Document Summary\s*\*\*:?', '', cleaned, flags=re.IGNORECASE)
+        cleaned = re.sub(r'\*\s*\(\s*Source:[^\)]+\)\s*\*?', '', cleaned, flags=re.IGNORECASE)
+        cleaned = re.sub(r'\(Source:[^\)]+\)', '', cleaned, flags=re.IGNORECASE)
+        
+        # Clean leading bullet markers or dashes if orphaned
+        lines = [line.strip() for line in cleaned.splitlines()]
+        non_empty = [line for line in lines if line]
+        return "\n".join(non_empty).strip()
 
     def _handle_conversational_intents(self, question: str) -> Optional[ChatResponse]:
         """
@@ -280,7 +298,7 @@ class RAGPipeline:
             return ChatResponse(
                 answer=(
                     "Hello! 👋 I am **UniGuide AI**, your official university information assistant.\n\n"
-                    "I can query official university PDF documents to answer your questions with exact page citations. You can ask me:\n"
+                    "I can query official university PDF documents to answer your questions. You can ask me:\n"
                     "- *\"What programs and courses are offered?\"*\n"
                     "- *\"What are the B.Tech or Polytechnic eligibility criteria?\"*\n"
                     "- *\"What is the fee structure for MBA or diploma programs?\"*\n"
@@ -295,8 +313,8 @@ class RAGPipeline:
                 answer=(
                     "I am **UniGuide AI**, an executive Retrieval-Augmented Generation (RAG) assistant designed for university students.\n\n"
                     "**Key Features**:\n"
-                    "- 📄 **Page-Level PDF Extraction**: Extracts page metadata from official guidelines and brochures.\n"
-                    "- 🎯 **Zero-Hallucination RAG**: Answers strictly from retrieved document context with exact page citations.\n"
+                    "- 📄 **PDF Knowledge Extraction**: Extracts answers directly from official guidelines and brochures.\n"
+                    "- 🎯 **Zero-Hallucination RAG**: Answers strictly from retrieved document context with direct factual responses.\n"
                     "- 🔍 **Targeted Scoping**: Allows scoping queries to a specific PDF or searching across all documents."
                 ),
                 sources=[],
@@ -331,7 +349,7 @@ class RAGPipeline:
 
     def answer_question(self, question: str, top_k: int = 5, document_name: Optional[str] = None, conversation_history: Optional[List[Dict[str, str]]] = None) -> ChatResponse:
         """
-        Executes end-to-end RAG pipeline for a user question with latency tracking, document scoping, multi-turn history, and LLM fallbacks.
+        Executes end-to-end RAG pipeline for a user question returning direct answers only.
         """
         start_time = time.time()
         
@@ -356,37 +374,25 @@ class RAGPipeline:
                 execution_time_ms=elapsed_ms
             )
 
-        # 2. Extract context text and build page-level citations
+        # 2. Extract context text
         context_blocks: List[str] = []
-        citations_dict: Dict[str, set] = {}
 
         for doc, score in search_results:
-            source_file = doc.metadata.get("source", "Unknown Document")
-            page_num = int(doc.metadata.get("page", 1))
-
-            block = f"[Source: {source_file} | Page: {page_num}]\n{doc.page_content}"
-            context_blocks.append(block)
-
-            if source_file not in citations_dict:
-                citations_dict[source_file] = set()
-            citations_dict[source_file].add(page_num)
+            # Strip document/page headers from retrieved content before feeding context to LLM
+            clean_content = self._clean_text_noise(doc.page_content)
+            context_blocks.append(clean_content)
 
         formatted_context = "\n\n".join(context_blocks)
-        
-        # Build structured list of SourceCitation objects
-        sources_list: List[SourceCitation] = []
-        for doc_name, pages in citations_dict.items():
-            for p in sorted(pages):
-                sources_list.append(SourceCitation(document=doc_name, page=p))
 
         # 3. Check Gemini API client availability
         if not self.client:
             logger.info("Using local multi-entity exact-answer extraction engine.")
             direct_answer = self._synthesize_direct_answer(search_results, question)
+            cleaned_ans = self._clean_answer_output(direct_answer)
             elapsed_ms = round((time.time() - start_time) * 1000, 2)
             return ChatResponse(
-                answer=direct_answer,
-                sources=sources_list,
+                answer=cleaned_ans,
+                sources=[],
                 execution_time_ms=elapsed_ms
             )
 
@@ -421,16 +427,19 @@ class RAGPipeline:
         elapsed_ms = round((time.time() - start_time) * 1000, 2)
 
         if generated_answer:
+            cleaned_ans = self._clean_answer_output(generated_answer)
             return ChatResponse(
-                answer=generated_answer,
-                sources=sources_list,
+                answer=cleaned_ans,
+                sources=[],
                 execution_time_ms=elapsed_ms
             )
         else:
             logger.warning(f"Gemini API models failed ({last_exception}). Falling back to exact-answer extraction.")
             direct_answer = self._synthesize_direct_answer(search_results, question)
+            cleaned_ans = self._clean_answer_output(direct_answer)
             return ChatResponse(
-                answer=direct_answer,
-                sources=sources_list,
+                answer=cleaned_ans,
+                sources=[],
                 execution_time_ms=elapsed_ms
             )
+
