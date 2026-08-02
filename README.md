@@ -1,152 +1,153 @@
-# UniGuide AI – Indian University Information Assistant using RAG
+# UniGuide AI – Indian University Information Assistant (Executive RAG)
 
-> A production-ready, full-stack Retrieval-Augmented Generation (RAG) assistant designed for Indian University students to query official PDF documents (admission guidelines, fee structures, examination rules, syllabus) with **zero hallucinations** and **exact page-level citations**.
+> A production-ready, full-stack Retrieval-Augmented Generation (RAG) assistant designed for Indian University students to query official PDF documents (admission guidelines, fee structures, examination rules, syllabus) with **zero hallucinations**, **dynamic confidence ratings**, and **clean direct answers**.
 
----
-
-## 🌟 Key Features
-
-- 📄 **PDF Extraction with Page Metadata**: Uses PyMuPDF (`fitz`) to extract text page-by-page, retaining original document titles and page numbers.
-- 🧩 **Context-Aware Chunking**: Splits documents using LangChain's `RecursiveCharacterTextSplitter` (1000 chars, 200 overlap) while maintaining citation lineage.
-- ⚡ **High-Performance Vector Search**: Employs `BAAI/bge-large-en-v1.5` embeddings stored persistently in ChromaDB for fast similarity retrieval.
-- 🎯 **Strict Anti-Hallucination Guardrails**: Systemic prompt design instructs Google Gemini API to answer strictly from retrieved context and output exact page numbers.
-- 📊 **SQLite Metadata Management**: Tracks uploaded documents, page counts, vector index status, and chunk statistics.
-- 💻 **Modern React UI**: Premium glassmorphism interface built with React, TypeScript, Vite, and TailwindCSS featuring markdown answer rendering and interactive citation cards.
+![UniGuide AI Dashboard Preview](docs/images/dashboard_preview.png)
 
 ---
 
-## 🏗️ Project Architecture & Tech Stack
+## 🌟 Key Features & Recent Advancements
 
-```
-UniGuideAI/
-├── backend/                  # FastAPI Application
-│   ├── app/
-│   │   ├── api/v1/endpoints/ # REST Endpoints (/upload, /ingest, /chat, /documents)
-│   │   ├── core/             # Configuration & Logging
-│   │   ├── models/           # SQLAlchemy Models
-│   │   ├── rag/              # Text Splitter, Embeddings, ChromaDB, RAG Pipeline
-│   │   ├── schemas/          # Pydantic Request/Response Models
-│   │   └── services/         # PyMuPDF PDF Text Service
-│   ├── uploads/              # Uploaded PDF Storage
-│   ├── chroma_db/            # Persistent ChromaDB Store
-│   ├── uniguide.db           # SQLite Metadata Store
-│   ├── main.py               # FastAPI App Entrypoint
-│   └── requirements.txt      # Python Dependencies
-├── frontend/                 # React + TypeScript + Vite Application
-│   ├── src/
-│   │   ├── components/       # UI Components (Chat, Documents, Citations, Sidebar)
-│   │   ├── pages/            # Dashboard, Settings
-│   │   ├── services/         # Axios API Client
-│   │   └── types/            # TypeScript Interfaces
-│   ├── index.html
-│   ├── package.json
-│   └── vite.config.ts
-└── README.md
+- 🎯 **Clean Direct Answers**: Strips away OCR noise, raw context headers, and document tags to present concise, exact answers directly to the student.
+- ⚡ **Dynamic RAG Confidence Score Engine**: Calculates real-time mathematical confidence scores ($0.0 - 1.0$) and qualitative ratings (`High Confidence`, `Medium Confidence`, `Low Confidence`) for every generated answer.
+- 📄 **Page-Level Vector Ingestion**: Extracts text page-by-page using PyMuPDF (`fitz`) while maintaining precise source and page metadata across chunking stages.
+- 🎙️ **Voice Input Support**: Integrated Web Speech Recognition API allowing hands-free voice questions in the interactive chat interface.
+- 💾 **Export Chat Guidance**: Export full student Q&A sessions into formatted Markdown (`.md`) files for printing or offline review.
+- 🔄 **Dual LLM & Local Extraction Engine**: Primary execution via Google Gemini API (`gemini-1.5-flash` / `gemini-1.5-pro`) with an automated local exact-fact extraction fallback when offline.
+- 📊 **Executive Analytics Dashboard**: Real-time stats tracking indexed vectors, total extracted pages, ChromaDB chunks, and document repository status.
+
+---
+
+## 🏗️ System Architecture
+
+```mermaid
+flowchart TD
+    subgraph Client ["Frontend (React + Vite + TypeScript)"]
+        UI[Glassmorphism Dashboard & Chat]
+        Speech[Voice Input Web Speech API]
+        Export[Export Chat Markdown]
+    end
+
+    subgraph Server ["Backend (FastAPI Engine)"]
+        API[FastAPI Router /api/v1]
+        PDFService[PyMuPDF PDF Text Service]
+        Chunker[LangChain Recursive Splitter]
+        RAGPipeline[Executive RAG Pipeline & HyDE Query Expansion]
+        ConfidenceEngine[Confidence Metric Calculator]
+    end
+
+    subgraph Storage ["Persistent Data Layer"]
+        Chroma[(ChromaDB Vector Store)]
+        SQLite[(SQLite Metadata Database)]
+        Uploads[(PDF File Repository)]
+    end
+
+    subgraph LLM ["Generative AI Layer"]
+        Gemini[Google Gemini API / Fallback Exact-Fact Extractor]
+    end
+
+    UI -->|PDF Upload / Chat Queries| API
+    Speech --> UI
+    API --> PDFService
+    PDFService --> Uploads
+    PDFService --> Chunker
+    Chunker --> Chroma
+    API --> RAGPipeline
+    RAGPipeline -->|Similarity Search + HyDE| Chroma
+    RAGPipeline --> Gemini
+    Gemini --> ConfidenceEngine
+    ConfidenceEngine -->|Direct Answer + Confidence Score| UI
+    Export --> UI
 ```
 
-### Technology Stack
-- **Frontend**: React 18, TypeScript, Vite, TailwindCSS, Axios, Lucide Icons, React Markdown.
-- **Backend**: Python 3.10+, FastAPI, PyMuPDF (fitz), SQLAlchemy, Pydantic v2.
-- **RAG & ML**: LangChain, ChromaDB, `BAAI/bge-large-en-v1.5` (via `sentence-transformers`), Google Gemini API (`google-genai`).
+---
+
+## 💻 Tech Stack
+
+- **Frontend**: React 18, TypeScript, Vite, TailwindCSS, Axios, Lucide Icons, React Markdown, Web Speech API.
+- **Backend**: Python 3.9+, FastAPI, PyMuPDF (`fitz`), SQLAlchemy, Pydantic v2.
+- **Vector Search & ML**: LangChain, ChromaDB, `BAAI/bge-small-en-v1.5` embeddings, Google Gemini API (`google-genai`).
 
 ---
 
 ## 🚀 Quickstart & Setup Guide
 
 ### Prerequisites
-- Python 3.10 or higher
-- Node.js 18 or higher & npm
-- Google Gemini API Key ([Get an API key here](https://aistudio.google.com/))
+- Python 3.9 or higher
+- Node.js 18+ & npm
+- Docker & Docker Compose (Optional for containerized run)
+- Google Gemini API Key ([Get API Key](https://aistudio.google.com/))
 
 ---
 
-### Step 1: Backend Setup
+### Method 1: Running via Local Launch Script
 
-1. Navigate to the `backend` directory:
-   ```bash
-   cd backend
-   ```
+Run the automated production launcher from the root directory:
 
-2. Create and activate a Python virtual environment:
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. Install required Python packages:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. Configure environment variables:
-   Copy `.env.example` to `.env` and add your Google Gemini API key:
-   ```bash
-   cp .env.example .env
-   ```
-   Open `.env` and set:
-   ```env
-   GEMINI_API_KEY="AIzaSyYourActualGeminiApiKeyHere"
-   ```
-
-5. Start the FastAPI server:
-   ```bash
-   python main.py
-   ```
-   The backend API will run at `http://localhost:8000`. API documentation is available at `http://localhost:8000/docs`.
+```bash
+bash start_production.sh
+```
 
 ---
 
-### Step 2: Frontend Setup
+### Method 2: Manual Local Setup
 
-1. In a new terminal window, navigate to the `frontend` directory:
-   ```bash
-   cd frontend
-   ```
+#### Step 1: Backend Setup
+```bash
+cd backend
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
 
-2. Install Node dependencies:
-   ```bash
-   npm install
-   ```
+# Configure Environment Variables
+cp .env.example .env
+# Set your GEMINI_API_KEY inside backend/.env
 
-3. Launch the Vite development server:
-   ```bash
-   npm run dev
-   ```
-   Open `http://localhost:3000` in your web browser.
+# Launch FastAPI Server
+python main.py
+```
+*Backend runs at:* `http://localhost:8000` (Swagger docs at `http://localhost:8000/docs`)
+
+#### Step 2: Frontend Setup
+```bash
+cd frontend
+npm install
+npm run dev
+```
+*Frontend runs at:* `http://localhost:3000`
 
 ---
 
-## 🛰️ REST API Endpoints Overview
+### Method 3: Running via Docker Compose
+
+```bash
+docker-compose up -d --build
+```
+
+---
+
+## 🛰️ REST API Specifications
 
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
-| `POST` | `/api/v1/upload` | Uploads a university PDF document to `/uploads` and records metadata in SQLite. |
-| `POST` | `/api/v1/ingest` | Extracts text via PyMuPDF, chunks text, generates BAAI embeddings, & stores in ChromaDB. |
-| `POST` | `/api/v1/chat` | Runs similarity search, constructs RAG context prompt, queries Gemini LLM, & returns citations. |
-| `GET` | `/api/v1/documents` | Lists all uploaded university documents and vector indexing status. |
-| `DELETE` | `/api/v1/documents/{id}` | Deletes PDF file, removes document vectors from ChromaDB, and deletes DB metadata. |
+| `POST` | `/api/v1/upload` | Uploads a university PDF document and stores metadata in SQLite. |
+| `POST` | `/api/v1/ingest` | Extracts text, chunks documents, generates vector embeddings, and stores in ChromaDB. |
+| `POST` | `/api/v1/chat` | Runs similarity search, executes RAG pipeline, and returns direct answer with confidence score. |
+| `GET` | `/api/v1/documents` | Lists all uploaded documents and vector index status. |
+| `GET` | `/api/v1/documents/stats` | Returns aggregate statistics (total chunks, ingested files, pages). |
+| `DELETE` | `/api/v1/documents/{id}` | Deletes PDF file, removes vector embeddings from ChromaDB, and clears database metadata. |
 
 ---
 
-## 🧪 Example API Query & Response
+## 🧪 Example API Response (`POST /api/v1/chat`)
 
-### Request (`POST /api/v1/chat`)
 ```json
 {
-  "question": "What is the fee structure for B.Tech admission?"
-}
-```
-
-### Response
-```json
-{
-  "answer": "According to the official admission guidelines, the annual tuition fee for the B.Tech program is ₹1,25,000 per academic year, payable in two semester installments.",
-  "sources": [
-    {
-      "document": "Admission_Brochure_2024.pdf",
-      "page": 14
-    }
-  ]
+  "answer": "Nirmala Institute of Technology (NiT) offers 3-year Diploma engineering courses in Mechanical, Civil, Chemical, Automobile, and Electrical Engineering.\n\n**Eligibility**: Candidates who have passed SSLC / THSLC or equivalent examination with Mathematics, English & Science subjects are eligible to apply.",
+  "sources": [],
+  "execution_time_ms": 1240.5,
+  "confidence_score": 0.92,
+  "confidence_label": "High Confidence"
 }
 ```
 
@@ -155,3 +156,4 @@ UniGuideAI/
 ## 🛡️ License
 
 Distributed under the MIT License. See `LICENSE` for details.
+
