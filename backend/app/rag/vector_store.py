@@ -39,12 +39,13 @@ class VectorStoreManager:
             )
         return self._vector_store
 
-    def add_documents(self, documents: List[Document]) -> List[str]:
+    def add_documents(self, documents: List[Document], batch_size: int = 50) -> List[str]:
         """
-        Stores chunked document vectors into persistent ChromaDB collection.
+        Stores chunked document vectors into persistent ChromaDB collection in batches.
 
         Args:
             documents (List[Document]): List of LangChain document chunks with page metadata.
+            batch_size (int): Batch size for vector insertion (default: 50).
 
         Returns:
             List[str]: Unique document vector IDs inserted into ChromaDB.
@@ -53,11 +54,15 @@ class VectorStoreManager:
             logger.warning("No documents provided for insertion into vector database.")
             return []
 
-        logger.info(f"Indexing {len(documents)} document chunks into ChromaDB...")
+        logger.info(f"Indexing {len(documents)} document chunks into ChromaDB in batches of {batch_size}...")
+        all_ids: List[str] = []
         try:
-            ids = self.vector_store.add_documents(documents)
-            logger.info(f"Successfully stored {len(ids)} document vectors in ChromaDB.")
-            return ids
+            for i in range(0, len(documents), batch_size):
+                batch = documents[i : i + batch_size]
+                batch_ids = self.vector_store.add_documents(batch)
+                all_ids.extend(batch_ids)
+            logger.info(f"Successfully stored {len(all_ids)} document vectors in ChromaDB.")
+            return all_ids
         except Exception as e:
             logger.error(f"Error adding documents to ChromaDB: {str(e)}")
             raise RuntimeError(f"Vector store indexing failed: {str(e)}")

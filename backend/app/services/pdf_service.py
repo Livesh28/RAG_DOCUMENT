@@ -107,35 +107,28 @@ class PDFService:
     @classmethod
     def _extract_scanned_page_ocr(cls, page: fitz.Page, page_index: int, file_path: Path) -> str:
         """
-        Performs high-accuracy OCR on scanned PDF page image using EasyOCR.
+        Fast PyMuPDF block and layout text extraction for scanned/graphics PDF pages.
         """
-        # 1. Try PyMuPDF blocks or layout text
+        # 1. Try PyMuPDF blocks layout text
         try:
             blocks = page.get_text("blocks")
             block_text = " ".join([b[4] for b in blocks if len(b) >= 5 and b[4].strip()])
             cleaned = cls.clean_text(block_text)
-            if cleaned and len(cleaned) >= 15:
+            if cleaned and len(cleaned) >= 5:
                 return cleaned
         except Exception:
             pass
 
-        # 2. Perform EasyOCR on rendered page pixmap
-        reader = cls.get_ocr_reader()
-        if reader:
-            try:
-                logger.info(f"Running EasyOCR on scanned page {page_index + 1} of '{file_path.name}'...")
-                pix = page.get_pixmap(dpi=120)
-                img_np = np.frombuffer(pix.samples, dtype=np.uint8).reshape((pix.height, pix.width, pix.n))
-                ocr_results = reader.readtext(img_np, detail=0)
-                ocr_text = " ".join(ocr_results)
-                cleaned_ocr = cls.clean_text(ocr_text)
-                if cleaned_ocr and len(cleaned_ocr) >= 5:
-                    logger.info(f"EasyOCR extracted {len(cleaned_ocr)} chars from page {page_index + 1}.")
-                    return cleaned_ocr
-            except Exception as e:
-                logger.warning(f"EasyOCR extraction failed for page {page_index + 1}: {e}")
+        # 2. Try raw page text
+        try:
+            raw_text = page.get_text("text")
+            cleaned_raw = cls.clean_text(raw_text)
+            if cleaned_raw and len(cleaned_raw) >= 5:
+                return cleaned_raw
+        except Exception:
+            pass
 
-        # 3. Fallback placeholder
+        # 3. Fallback placeholder for graphic pages
         img_count = len(page.get_images())
         dwg_count = len(page.get_drawings())
         return (
