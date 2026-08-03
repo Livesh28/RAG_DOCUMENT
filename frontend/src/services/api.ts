@@ -2,7 +2,13 @@ import axios from 'axios';
 import { DocumentListResponse, DocumentItem, IngestResponse, SourceCitation, SystemStats } from '../types';
 
 const getBaseUrl = () => {
-  const envUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
+  const envUrl = import.meta.env.VITE_API_BASE_URL;
+  if (!envUrl) {
+    if (typeof window !== 'undefined' && window.location && window.location.origin) {
+      return `${window.location.origin}/api/v1`;
+    }
+    return 'http://localhost:8000/api/v1';
+  }
   const cleanUrl = envUrl.replace(/\/+$/, '');
   return cleanUrl.endsWith('/api/v1') ? cleanUrl : `${cleanUrl}/api/v1`;
 };

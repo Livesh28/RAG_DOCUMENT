@@ -1,3 +1,12 @@
+# Stage 1: Build React Frontend UI
+FROM node:20-slim AS frontend-builder
+WORKDIR /app/frontend
+COPY frontend/package*.json ./
+RUN npm install
+COPY frontend/ ./
+RUN npm run build
+
+# Stage 2: Production Python Application Container
 FROM python:3.10-slim
 
 ENV PYTHONUNBUFFERED=1 \
@@ -24,6 +33,9 @@ RUN pip install --no-cache-dir torch --extra-index-url https://download.pytorch.
 
 # Copy backend application code
 COPY backend/ ./backend/
+
+# Copy compiled React frontend assets from Stage 1 into container
+COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
 
 WORKDIR /app/backend
 RUN mkdir -p uploads chroma_db

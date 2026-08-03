@@ -49,17 +49,46 @@ app.include_router(api_router, prefix="/api/v1")
 app.include_router(api_router)
 
 
-@app.get("/", tags=["Health Check"])
-async def root():
-    """
-    Health check root endpoint returning application metadata.
-    """
+from fastapi.responses import FileResponse
+from fastapi.exceptions import HTTPException
+
+@app.get("/health", tags=["Health Check"])
+async def health_check():
+    """Health check endpoint returning application status."""
     return {
         "app": settings.APP_NAME,
         "version": settings.APP_VERSION,
         "status": "online",
         "docs": "/docs"
     }
+
+# Mount React Frontend static assets if available (Unified single-container deployment)
+frontend_dist_path = backend_dir.parent / "frontend" / "dist"
+if frontend_dist_path.exists():
+    assets_path = frontend_dist_path / "assets"
+    if assets_path.exists():
+        app.mount("/assets", StaticFiles(directory=str(assets_path)), name="static_assets")
+
+    @app.get("/{full_path:path}", tags=["Frontend UI"])
+    async def serve_frontend_app(full_path: str):
+        # Exclude API endpoints, docs, and uploads
+        if full_path.startswith("api/") or full_path.startswith("docs") or full_path.startswith("redoc") or full_path.startswith("uploads") or full_path == "health":
+            raise HTTPException(status_code=404, detail="Endpoint not found")
+        
+        target_file = frontend_dist_path / full_path
+        if full_path and target_file.exists() and target_file.is_file():
+            return FileResponse(target_file)
+        return FileResponse(frontend_dist_path / "index.html")
+else:
+    @app.get("/", tags=["Health Check"])
+    async def root():
+        """Health check root endpoint returning application metadata."""
+        return {
+            "app": settings.APP_NAME,
+            "version": settings.APP_VERSION,
+            "status": "online",
+            "docs": "/docs"
+        }
 
 
 if __name__ == "__main__":
