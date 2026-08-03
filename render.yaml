@@ -18,7 +18,7 @@ services:
       - key: LLM_MODEL_NAME
         value: gemini-1.5-flash
       - key: EMBEDDING_MODEL_NAME
-        value: BAAI/bge-small-en-v1.5
+        value: sentence-transformers/all-MiniLM-L6-v2
       - key: ADMIN_SECRET_KEY
         sync: false
       - key: DEBUG
@@ -38,4 +38,8 @@ services:
         destination: "/index.html"
     envVars:
       - key: VITE_API_BASE_URL
-        sync: false
+        fromService:
+          type: web
+          name: uniguide-ai-backend
+          property: url
+
