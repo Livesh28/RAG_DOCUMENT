@@ -1,6 +1,12 @@
 from typing import List, Dict, Any
 from langchain_core.documents import Document
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+try:
+    from langchain_text_splitters import RecursiveCharacterTextSplitter
+except ImportError:
+    try:
+        from langchain.text_splitter import RecursiveCharacterTextSplitter
+    except ImportError:
+        from langchain_community.text_splitter import RecursiveCharacterTextSplitter
 from app.core.config import settings
 from app.core.logging import logger
 
