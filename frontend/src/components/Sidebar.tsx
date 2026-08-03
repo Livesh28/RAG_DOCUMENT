@@ -8,16 +8,19 @@ import {
   CheckCircle2, 
   Clock, 
   RefreshCw,
-  Layers
+  Layers,
+  UploadCloud,
+  Lock
 } from 'lucide-react';
-import { DocumentItem } from '../types';
+import { DocumentItem, UserRole } from '../types';
 
 interface SidebarProps {
-  activeTab: 'dashboard' | 'documents' | 'settings';
-  setActiveTab: (tab: 'dashboard' | 'documents' | 'settings') => void;
+  activeTab: 'dashboard' | 'documents' | 'settings' | 'admin-upload';
+  setActiveTab: (tab: 'dashboard' | 'documents' | 'settings' | 'admin-upload') => void;
   documents: DocumentItem[];
   onIngestAll: () => void;
   isIngesting: boolean;
+  role: UserRole;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -26,6 +29,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   documents,
   onIngestAll,
   isIngesting,
+  role,
 }) => {
   const pendingCount = documents.filter((d) => !d.is_ingested).length;
   const ingestedCount = documents.filter((d) => d.is_ingested).length;
@@ -40,7 +44,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div>
           <div className="flex items-center gap-1.5">
             <h1 className="font-bold text-base text-slate-900 tracking-tight">UniGuide AI</h1>
-            <span className="text-[9px] bg-brand-100 text-brand-700 font-bold px-1.5 py-0.5 rounded uppercase tracking-wide border border-brand-200">PRO</span>
+            <span className="text-[9px] bg-brand-100 text-brand-700 font-bold px-1.5 py-0.5 rounded uppercase tracking-wide border border-brand-200">
+              {role === 'admin' ? 'ADMIN' : 'PRO'}
+            </span>
           </div>
           <p className="text-[11px] text-slate-500 font-medium">University Information Assistant</p>
         </div>
@@ -70,7 +76,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         >
           <div className="flex items-center gap-3">
             <FileText className={`w-4 h-4 ${activeTab === 'documents' ? 'text-brand-600' : ''}`} />
-            <span>Document Knowledge</span>
+            <span>Document Repository</span>
           </div>
           {documents.length > 0 && (
             <span className="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full font-bold border border-slate-200">
@@ -78,6 +84,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </span>
           )}
         </button>
+
+        {/* Dedicated Admin Upload Navigation Tab */}
+        {role === 'admin' && (
+          <button
+            onClick={() => setActiveTab('admin-upload')}
+            className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-semibold text-xs tracking-wide transition-all duration-150 ${
+              activeTab === 'admin-upload'
+                ? 'bg-gradient-to-r from-brand-600 to-indigo-600 text-white shadow-md shadow-brand-600/20'
+                : 'text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <UploadCloud className="w-4 h-4" />
+              <span>Admin Upload Hub</span>
+            </div>
+            <Lock className="w-3 h-3 opacity-80" />
+          </button>
+        )}
 
         <button
           onClick={() => setActiveTab('settings')}
@@ -120,7 +144,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         </div>
 
-        {pendingCount > 0 && (
+        {role === 'admin' && pendingCount > 0 && (
           <button
             onClick={onIngestAll}
             disabled={isIngesting}
@@ -136,7 +160,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <div className="p-4 border-t border-slate-200 text-[10px] text-slate-500 flex justify-between items-center font-medium bg-slate-50">
         <div className="flex items-center gap-1.5">
           <Layers className="w-3 h-3 text-brand-600" />
-          <span>all-MiniLM-L6-v2 Embeddings</span>
+          <span>MongoDB Atlas + ChromaDB</span>
         </div>
         <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-sm" />
       </div>

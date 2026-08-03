@@ -1,9 +1,9 @@
 import shutil
 from pathlib import Path
 from fastapi import APIRouter, UploadFile, File, HTTPException, status, Depends
-from sqlalchemy.orm import Session
 from app.core.config import settings
-from app.core.database import get_db
+from app.core.database import MongoDBDocumentRepository
+from app.core.security import require_admin_role
 from app.core.logging import logger
 from app.models.document import DocumentModel
 from app.schemas.document import DocumentResponse
@@ -11,14 +11,16 @@ from app.schemas.document import DocumentResponse
 router = APIRouter()
 
 
-@router.post("/upload", response_model=DocumentResponse, status_code=status.HTTP_201_CREATED)
-async def upload_pdf(
-    file: UploadFile = File(...),
-    db: Session = Depends(get_db)
-):
+@router.post(
+    "/upload",
+    response_model=DocumentResponse,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_admin_role)]
+)
+async def upload_pdf(file: UploadFile = File(...)):
     """
     Uploads a university PDF document, validates format, stores file in uploads directory,
-    and registers metadata in SQLite database.
+    and registers document metadata in MongoDB Atlas database (Admin privilege required).
     """
     if not file.filename:
         raise HTTPException(
@@ -50,18 +52,17 @@ async def upload_pdf(
             detail=f"Failed to save file: {str(e)}"
         )
 
-    # Check if document already exists in SQLite database
-    existing_doc = db.query(DocumentModel).filter(DocumentModel.filename == file.filename).first()
+    # Check if document already exists in MongoDB Atlas metadata collection
+    existing_doc = MongoDBDocumentRepository.get_by_filename(file.filename)
     if existing_doc:
-        existing_doc.file_size = file_size
-        existing_doc.is_ingested = False
-        db.commit()
-        db.refresh(existing_doc)
-        logger.info(f"Updated existing document record for '{file.filename}'.")
-        return existing_doc
+        existing_doc["file_size"] = file_size
+        existing_doc["is_ingested"] = False
+        saved_doc = MongoDBDocumentRepository.save(existing_doc)
+        logger.info(f"Updated existing document record for '{file.filename}' in MongoDB Atlas.")
+        return DocumentResponse.model_validate(saved_doc)
 
-    # Create new document record in database
-    new_doc = DocumentModel(
+    # Create new document record in MongoDB Atlas
+    new_doc_model = DocumentModel(
         filename=file.filename,
         file_path=str(target_path),
         file_size=file_size,
@@ -69,9 +70,7 @@ async def upload_pdf(
         total_pages=0,
         total_chunks=0
     )
-    db.add(new_doc)
-    db.commit()
-    db.refresh(new_doc)
+    saved_doc = MongoDBDocumentRepository.save(new_doc_model.to_dict())
 
-    logger.info(f"Registered new document ID {new_doc.id} in SQLite database.")
-    return new_doc
+    logger.info(f"Registered new document ID {saved_doc['id']} in MongoDB Atlas database.")
+    return DocumentResponse.model_validate(saved_doc)

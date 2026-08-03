@@ -6,7 +6,7 @@ import {
   CheckCircle2, 
   TrendingUp
 } from 'lucide-react';
-import { DocumentItem, ChatMessage } from '../types';
+import { DocumentItem, ChatMessage, UserRole } from '../types';
 import { DocumentManager } from '../components/DocumentManager';
 import { ChatInterface } from '../components/ChatInterface';
 
@@ -21,6 +21,7 @@ interface DashboardProps {
   isUploading: boolean;
   isIngesting: boolean;
   isChatLoading: boolean;
+  role?: UserRole;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({
@@ -34,7 +35,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
   isUploading,
   isIngesting,
   isChatLoading,
+  role = 'student',
 }) => {
+
   const totalDocs = documents.length;
   const ingestedDocs = documents.filter((d) => d.is_ingested).length;
   const totalPages = documents.reduce((acc, d) => acc + (d.total_pages || 0), 0);
@@ -107,7 +110,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
             onDelete={onDelete}
             isUploading={isUploading}
             isIngesting={isIngesting}
+            role={role}
           />
+
         </div>
 
         <div className="lg:col-span-6 xl:col-span-7 h-full">

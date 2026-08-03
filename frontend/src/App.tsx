@@ -3,19 +3,21 @@ import { Sidebar } from './components/Sidebar';
 import { Navbar } from './components/Navbar';
 import { Dashboard } from './pages/Dashboard';
 import { DocumentManager } from './components/DocumentManager';
+import { AdminUploadPage } from './pages/AdminUploadPage';
 import { SettingsPage } from './pages/SettingsPage';
-import { DocumentItem, ChatMessage } from './types';
+import { DocumentItem, ChatMessage, UserRole } from './types';
 import { apiService } from './services/api';
 
 export const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'documents' | 'settings'>('dashboard');
+  const [role, setRole] = useState<UserRole>('student');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'documents' | 'settings' | 'admin-upload'>('dashboard');
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [isIngesting, setIsIngesting] = useState<boolean>(false);
   const [isChatLoading, setIsChatLoading] = useState<boolean>(false);
 
-  // Load document list from backend on mount
+  // Load document list from MongoDB Atlas metadata backend on mount
   const fetchDocuments = async () => {
     try {
       const data = await apiService.getDocuments();
@@ -35,6 +37,7 @@ export const App: React.FC = () => {
     try {
       await apiService.uploadDocument(file);
       await fetchDocuments();
+      alert(`Success! File '${file.name}' stored in MongoDB Atlas document repository.`);
     } catch (error: any) {
       alert(`Upload failed: ${error.response?.data?.detail || error.message}`);
     } finally {
@@ -47,7 +50,7 @@ export const App: React.FC = () => {
     setIsIngesting(true);
     try {
       const res = await apiService.ingestDocuments(documentId);
-      alert(`Ingestion complete! ${res.message} (${res.total_chunks} chunks indexed)`);
+      alert(`Ingestion complete! ${res.message} (${res.total_chunks} chunks indexed in ChromaDB)`);
       await fetchDocuments();
     } catch (error: any) {
       alert(`Ingestion failed: ${error.response?.data?.detail || error.message}`);
@@ -80,7 +83,6 @@ export const App: React.FC = () => {
     setMessages((prev) => [...prev, userMsg]);
     setIsChatLoading(true);
 
-    // Format recent chat turns for multi-turn history memory
     const conversationHistory = messages.slice(-6).map((m) => ({
       role: m.sender,
       content: m.text,
@@ -122,10 +124,11 @@ export const App: React.FC = () => {
         documents={documents}
         onIngestAll={() => handleIngest()}
         isIngesting={isIngesting}
+        role={role}
       />
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <Navbar activeTab={activeTab} />
+        <Navbar activeTab={activeTab} role={role} setRole={setRole} />
 
         <main className="flex-1 overflow-y-auto p-6">
           {activeTab === 'dashboard' && (
@@ -140,11 +143,24 @@ export const App: React.FC = () => {
               isUploading={isUploading}
               isIngesting={isIngesting}
               isChatLoading={isChatLoading}
+              role={role}
             />
           )}
 
           {activeTab === 'documents' && (
             <DocumentManager
+              documents={documents}
+              onUpload={handleUpload}
+              onIngest={handleIngest}
+              onDelete={handleDelete}
+              isUploading={isUploading}
+              isIngesting={isIngesting}
+              role={role}
+            />
+          )}
+
+          {activeTab === 'admin-upload' && (
+            <AdminUploadPage
               documents={documents}
               onUpload={handleUpload}
               onIngest={handleIngest}

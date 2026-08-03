@@ -1,6 +1,6 @@
-# UniGuide AI – Indian University Information Assistant (Executive RAG)
+# UniGuide AI – Indian University Information Assistant (MERN + RAG)
 
-> A production-ready, full-stack Retrieval-Augmented Generation (RAG) assistant designed for Indian University students to query official PDF documents (admission guidelines, fee structures, examin[...]
+> A production-ready, full-stack Retrieval-Augmented Generation (RAG) assistant designed for Indian University students to query official PDF documents (admission guidelines, fee structures, examination rules, syllabus) with **zero hallucinations**, **dynamic confidence ratings**, **MongoDB Atlas metadata storage**, and an **Admin Upload Hub**.
 
 ![UniGuide AI Dashboard Preview](docs/images/dashboard_preview.png)
 
@@ -20,15 +20,27 @@ See UniGuide AI in action as it processes university PDFs, answers student queri
 
 ---
 
-## 🌟 Key Features & Recent Advancements
+## 🌐 Live Application & Deployment Links
 
+| Resource | URL Link | Status |
+| :--- | :--- | :--- |
+| **🚀 Live Demo App** | [https://uniguide-ai.vercel.app](https://uniguide-ai.vercel.app) | `Active (Production)` |
+| **⚙️ Backend API Endpoint** | [https://uniguide-backend.onrender.com/api/v1](https://uniguide-backend.onrender.com/api/v1) | `Online` |
+| **📖 OpenAPI Swagger Docs** | [https://uniguide-backend.onrender.com/docs](https://uniguide-backend.onrender.com/docs) | `Interactive` |
+| **💻 Frontend URL** | [https://uniguide-ai.vercel.app](https://uniguide-ai.vercel.app) | `Vite + React 18` |
+
+---
+
+## 🌟 Key Features & Architecture
+
+- 🍃 **MongoDB Atlas Metadata Store**: Document metadata, upload records, and ingestion status are persisted in MongoDB Atlas for consistency with MERN stack standards.
+- 🔐 **Admin Upload Page & RBAC**: Dedicated Admin Upload Hub for administrators to upload PDFs, run vector index chunking, and purge files. Students enjoy a search & Q&A interface without administrative controls.
+- 🧠 **ChromaDB Vector Database**: Persistent vector embeddings with sentence-transformer embeddings (`BAAI/bge-small-en-v1.5` / `all-MiniLM-L6-v2`).
 - 🎯 **Clean Direct Answers**: Strips away OCR noise, raw context headers, and document tags to present concise, exact answers directly to the student.
-- ⚡ **Dynamic RAG Confidence Score Engine**: Calculates real-time mathematical confidence scores ($0.0 - 1.0$) and qualitative ratings (`High Confidence`, `Medium Confidence`, `Low Confidence`) [...]
+- ⚡ **Dynamic RAG Confidence Score Engine**: Calculates real-time mathematical confidence scores ($0.0 - 1.0$) and qualitative ratings (`High Confidence`, `Medium Confidence`, `Low Confidence`).
 - 📄 **Page-Level Vector Ingestion**: Extracts text page-by-page using PyMuPDF (`fitz`) while maintaining precise source and page metadata across chunking stages.
 - 🎙️ **Voice Input Support**: Integrated Web Speech Recognition API allowing hands-free voice questions in the interactive chat interface.
 - 💾 **Export Chat Guidance**: Export full student Q&A sessions into formatted Markdown (`.md`) files for printing or offline review.
-- 🔄 **Dual LLM & Local Extraction Engine**: Primary execution via Google Gemini API (`gemini-1.5-flash` / `gemini-1.5-pro`) with an automated local exact-fact extraction fallback when offline.
-- 📊 **Executive Analytics Dashboard**: Real-time stats tracking indexed vectors, total extracted pages, ChromaDB chunks, and document repository status.
 
 ---
 
@@ -38,12 +50,14 @@ See UniGuide AI in action as it processes university PDFs, answers student queri
 flowchart TD
     subgraph Client ["Frontend (React + Vite + TypeScript)"]
         UI[Glassmorphism Dashboard & Chat]
+        AdminHub[Admin Upload Page & Management Hub]
         Speech[Voice Input Web Speech API]
-        Export[Export Chat Markdown]
+        RoleControl[Role Switcher: Student vs Admin]
     end
 
     subgraph Server ["Backend (FastAPI Engine)"]
         API[FastAPI Router /api/v1]
+        Security[Admin Privilege Verification Header]
         PDFService[PyMuPDF PDF Text Service]
         Chunker[LangChain Recursive Splitter]
         RAGPipeline[Executive RAG Pipeline & HyDE Query Expansion]
@@ -51,17 +65,20 @@ flowchart TD
     end
 
     subgraph Storage ["Persistent Data Layer"]
+        MongoDB[(MongoDB Atlas Metadata DB)]
         Chroma[(ChromaDB Vector Store)]
-        SQLite[(SQLite Metadata Database)]
-        Uploads[(PDF File Repository)]
+        Uploads[(PDF File Storage)]
     end
 
     subgraph LLM ["Generative AI Layer"]
         Gemini[Google Gemini API / Fallback Exact-Fact Extractor]
     end
 
-    UI -->|PDF Upload / Chat Queries| API
-    Speech --> UI
+    RoleControl -->|Role Headers| API
+    UI -->|Chat Queries| API
+    AdminHub -->|Upload / Ingest / Delete| Security
+    Security --> API
+    API --> MongoDB
     API --> PDFService
     PDFService --> Uploads
     PDFService --> Chunker
@@ -70,33 +87,99 @@ flowchart TD
     RAGPipeline -->|Similarity Search + HyDE| Chroma
     RAGPipeline --> Gemini
     Gemini --> ConfidenceEngine
-    ConfidenceEngine -->|Direct Answer + Confidence Score| UI
-    Export --> UI
+    ConfidenceEngine -->|Direct Answer + Citation Metadata| UI
 ```
+
+---
+
+## 📁 Project Folder Structure
+
+```
+rag_documents/
+├── backend/
+│   ├── app/
+│   │   ├── api/
+│   │   │   └── v1/
+│   │   │       ├── endpoints/
+│   │   │       │   ├── chat.py            # RAG Q&A query execution
+│   │   │       │   ├── documents.py       # MongoDB document list & stats
+│   │   │       │   ├── ingest.py          # Admin vector embedding ingestion
+│   │   │       │   └── upload.py          # Admin PDF upload & MongoDB sync
+│   │   │       └── router.py              # API v1 router definition
+│   │   ├── core/
+│   │   │   ├── config.py                  # Pydantic environment & Atlas settings
+│   │   │   ├── database.py                # MongoDB Atlas PyMongo client & repo
+│   │   │   ├── logging.py                 # Structured logger setup
+│   │   │   └── security.py                # Admin role authorization guard
+│   │   ├── models/
+│   │   │   └── document.py                # MongoDB Document metadata model
+│   │   ├── rag/
+│   │   │   ├── embeddings.py              # HuggingFace Embeddings loader
+│   │   │   ├── pipeline.py                # RAG pipeline, HyDE & confidence math
+│   │   │   ├── text_splitter.py           # Recursive page chunker
+│   │   │   └── vector_store.py            # ChromaDB vector store manager
+│   │   ├── schemas/                       # Pydantic request/response schemas
+│   │   └── services/                      # PyMuPDF PDF extraction service
+│   ├── chroma_db/                         # Persistent ChromaDB vector index
+│   ├── uploads/                           # Local PDF file storage
+│   ├── Dockerfile                         # Backend container dockerfile
+│   ├── main.py                            # FastAPI application entrypoint
+│   └── requirements.txt                   # Python backend dependencies
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── ChatInterface.tsx          # Q&A conversation interface
+│   │   │   ├── ChatMessage.tsx            # Message card with confidence badge
+│   │   │   ├── CitationCard.tsx           # Page-level PDF source citation
+│   │   │   ├── DocumentManager.tsx        # Document browser & FAQ modal
+│   │   │   ├── Navbar.tsx                 # Header with Student/Admin role switcher
+│   │   │   └── Sidebar.tsx                # System navigation & ChromaDB status
+│   │   ├── pages/
+│   │   │   ├── AdminUploadPage.tsx        # Dedicated Admin PDF Upload & Index Hub
+│   │   │   ├── Dashboard.tsx              # Student Q&A dashboard & metrics
+│   │   │   └── SettingsPage.tsx           # System architecture overview
+│   │   ├── services/
+│   │   │   └── api.ts                     # Axios client with Admin headers
+│   │   ├── types/                         # TypeScript interfaces & UserRole
+│   │   ├── App.tsx                        # Master React layout & state router
+│   │   └── main.tsx                       # React DOM entry point
+│   ├── Dockerfile                         # Frontend container dockerfile
+│   └── vite.config.ts                     # Vite build configuration
+├── docker-compose.yml                     # Multi-container launch orchestrator
+├── LICENSE                                # MIT Open Source License
+├── README.md                              # Technical documentation
+├── render.yaml                            # Render Blueprint deployment configuration
+└── start_production.sh                    # Automated local startup launcher script
+```
+
+---
+
+## 🛰️ REST API Specifications
+
+| Method | Endpoint | Access Role | Description |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/v1/chat` | `Student / Admin` | Submits chat question, performs similarity search, and returns direct answer with confidence score and page citations. |
+| `GET` | `/api/v1/documents` | `Student / Admin` | Returns list of uploaded PDF documents and MongoDB Atlas metadata. |
+| `GET` | `/api/v1/documents/stats` | `Student / Admin` | Returns aggregate metrics (total files, ingested vectors, extracted pages). |
+| `GET` | `/api/v1/documents/{id}/faqs` | `Student / Admin` | Auto-generates structured admission FAQs for a specific document. |
+| `POST` | `/api/v1/upload` | 🔒 `Admin Only` | Uploads a university PDF document and registers metadata in MongoDB Atlas. |
+| `POST` | `/api/v1/ingest` | 🔒 `Admin Only` | Extracts text, generates dense vector embeddings, and indexes chunks in ChromaDB. |
+| `DELETE` | `/api/v1/documents/{id}` | 🔒 `Admin Only` | Removes PDF file, purges vector embeddings from ChromaDB, and deletes metadata from MongoDB Atlas. |
 
 ---
 
 ## 💻 Tech Stack
 
 - **Frontend**: React 18, TypeScript, Vite, TailwindCSS, Axios, Lucide Icons, React Markdown, Web Speech API.
-- **Backend**: Python 3.9+, FastAPI, PyMuPDF (`fitz`), SQLAlchemy, Pydantic v2.
-- **Vector Search & ML**: LangChain, ChromaDB, `BAAI/bge-small-en-v1.5` embeddings, Google Gemini API (`google-genai`).
+- **Backend**: Python 3.9+, FastAPI, PyMuPDF (`fitz`), PyMongo (MongoDB Atlas Driver), Pydantic v2.
+- **Metadata Database**: MongoDB Atlas.
+- **Vector DB & ML**: LangChain, ChromaDB, `BAAI/bge-small-en-v1.5` / `all-MiniLM-L6-v2` embeddings, Google Gemini API (`google-genai`).
 
 ---
 
 ## 🚀 Quickstart & Setup Guide
 
-### Prerequisites
-- Python 3.9 or higher
-- Node.js 18+ & npm
-- Docker & Docker Compose (Optional for containerized run)
-- Google Gemini API Key ([Get API Key](https://aistudio.google.com/))
-
----
-
 ### Method 1: Running via Local Launch Script
-
-Run the automated production launcher from the root directory:
 
 ```bash
 bash start_production.sh
@@ -104,7 +187,7 @@ bash start_production.sh
 
 ---
 
-### Method 2: Manual Local Setup
+### Method 2: Manual Setup
 
 #### Step 1: Backend Setup
 ```bash
@@ -115,7 +198,7 @@ pip install -r requirements.txt
 
 # Configure Environment Variables
 cp .env.example .env
-# Set your GEMINI_API_KEY inside backend/.env
+# Set your GEMINI_API_KEY and MONGODB_URI inside backend/.env
 
 # Launch FastAPI Server
 python main.py
@@ -125,6 +208,7 @@ python main.py
 #### Step 2: Frontend Setup
 ```bash
 cd frontend
+export PATH=/Users/livesh/recommendation/node_bin/bin:$PATH
 npm install
 npm run dev
 ```
@@ -132,41 +216,17 @@ npm run dev
 
 ---
 
-### Method 3: Running via Docker Compose
+## 🔮 Future Enhancements
 
-```bash
-docker-compose up -d --build
-```
-
----
-
-## 🛰️ REST API Specifications
-
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `POST` | `/api/v1/upload` | Uploads a university PDF document and stores metadata in SQLite. |
-| `POST` | `/api/v1/ingest` | Extracts text, chunks documents, generates vector embeddings, and stores in ChromaDB. |
-| `POST` | `/api/v1/chat` | Runs similarity search, executes RAG pipeline, and returns direct answer with confidence score. |
-| `GET` | `/api/v1/documents` | Lists all uploaded documents and vector index status. |
-| `GET` | `/api/v1/documents/stats` | Returns aggregate statistics (total chunks, ingested files, pages). |
-| `DELETE` | `/api/v1/documents/{id}` | Deletes PDF file, removes vector embeddings from ChromaDB, and clears database metadata. |
-
----
-
-## 🧪 Example API Response (`POST /api/v1/chat`)
-
-```json
-{
-  "answer": "Nirmala Institute of Technology (NiT) offers 3-year Diploma engineering courses in Mechanical, Civil, Chemical, Automobile, and Electrical Engineering.\n\n**Eligibility**: Candidates[...]",
-  "sources": [],
-  "execution_time_ms": 1240.5,
-  "confidence_score": 0.92,
-  "confidence_label": "High Confidence"
-}
-```
+- [ ] **Multi-Tenant University Support**: Segregate document repositories and vector collections by university branch and department.
+- [ ] **Hybrid BM25 + Vector Search**: Combine sparse keyword search with dense embeddings for optimal accuracy on alphanumeric course codes and fee figures.
+- [ ] **OAuth2 JWT Authentication**: Production user login system supporting OAuth2 social login (Google/GitHub) and RBAC claims.
+- [ ] **Automated OCR Preprocessing**: Integrated Tesseract/EasyOCR fallback for scanned PDF documents.
+- [ ] **Real-Time Webhook Notifications**: Trigger push notifications when new admission brochures are uploaded and indexed.
 
 ---
 
 ## 🛡️ License
 
-Distributed under the MIT License. See `LICENSE` for details.
+Distributed under the MIT License. See [LICENSE](LICENSE) for details.
+

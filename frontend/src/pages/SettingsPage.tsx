@@ -40,11 +40,12 @@ export const SettingsPage: React.FC = () => {
               <span>Vector Database & Metadata Store</span>
             </div>
             <p className="text-slate-900 font-mono text-xs bg-white px-2.5 py-1 rounded border border-slate-200 w-fit font-semibold">
-              ChromaDB + SQLite Metadata Store
+              ChromaDB (Vector Store) + MongoDB Atlas (Metadata Store)
             </p>
             <p className="text-slate-600 leading-relaxed font-medium">
-              Persistent disk vector storage under <code className="text-brand-700 font-bold">backend/chroma_db</code> and document metadata in <code className="text-brand-700 font-bold">backend/uniguide.db</code>.
+              Persistent vector embeddings in <code className="text-brand-700 font-bold">ChromaDB</code> and document metadata in <code className="text-brand-700 font-bold">MongoDB Atlas Database</code>.
             </p>
+
           </div>
 
           <div className="p-4.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2 shadow-xs hover:border-brand-300 transition">

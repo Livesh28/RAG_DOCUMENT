@@ -25,7 +25,15 @@ class Settings(BaseSettings):
     # Vector DB Collection Configuration
     CHROMA_COLLECTION_NAME: str = "uniguide_university_docs"
 
+    # MongoDB Atlas Database Configuration for Metadata
+    MONGODB_URI: str = "mongodb://localhost:27017"
+    MONGODB_DB_NAME: str = "uniguide"
+
+    # Admin Authentication Secret / Role Header Key
+    ADMIN_SECRET_KEY: str = "uniguide-admin-secret-2026"
+
     # Google Gemini API Settings
+
     GEMINI_API_KEY: str = ""
     LLM_MODEL_NAME: str = "gemini-1.5-flash"
     LLM_TEMPERATURE: float = 0.0

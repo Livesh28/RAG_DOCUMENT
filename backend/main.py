@@ -10,11 +10,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.logging import logger
-from app.core.database import engine, Base
+from app.core.database import init_db
 from app.api.v1.router import api_router
 
-# Create SQLite tables on startup
-Base.metadata.create_all(bind=engine)
+# Initialize MongoDB Atlas database indexes on startup
+init_db()
+
 
 # Initialize FastAPI application
 app = FastAPI(

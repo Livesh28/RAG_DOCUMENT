@@ -1,3 +1,5 @@
+export type UserRole = 'student' | 'admin';
+
 export interface DocumentItem {
   id: number;
   filename: string;
@@ -7,6 +9,7 @@ export interface DocumentItem {
   total_pages: number;
   total_chunks: number;
 }
+
 
 export interface DocumentListResponse {
   documents: DocumentItem[];

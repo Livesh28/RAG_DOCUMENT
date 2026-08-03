@@ -23,7 +23,7 @@ export const apiService = {
     return response.data;
   },
 
-  // Upload PDF document
+  // Upload PDF document (Admin privilege required)
   async uploadDocument(file: File): Promise<DocumentItem> {
     const formData = new FormData();
     formData.append('file', file);
@@ -31,16 +31,23 @@ export const apiService = {
     const response = await apiClient.post<DocumentItem>('/upload', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
+        'X-Admin-Role': 'admin',
       },
     });
     return response.data;
   },
 
-  // Ingest documents
+  // Ingest documents (Admin privilege required)
   async ingestDocuments(documentId?: number): Promise<IngestResponse> {
-    const response = await apiClient.post<IngestResponse>('/ingest', {
-      document_id: documentId || null,
-    });
+    const response = await apiClient.post<IngestResponse>(
+      '/ingest',
+      { document_id: documentId || null },
+      {
+        headers: {
+          'X-Admin-Role': 'admin',
+        },
+      }
+    );
     return response.data;
   },
 
@@ -69,9 +76,13 @@ export const apiService = {
     return `${API_BASE_URL}/uploads/${encodeURIComponent(filename)}`;
   },
 
-  // Delete document by ID
+  // Delete document by ID (Admin privilege required)
   async deleteDocument(documentId: number): Promise<{ message: string; document_id: number }> {
-    const response = await apiClient.delete<{ message: string; document_id: number }>(`/documents/${documentId}`);
+    const response = await apiClient.delete<{ message: string; document_id: number }>(`/documents/${documentId}`, {
+      headers: {
+        'X-Admin-Role': 'admin',
+      },
+    });
     return response.data;
   },
 };
