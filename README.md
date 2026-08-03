@@ -1,6 +1,6 @@
 # UniGuide AI – Indian University Information Assistant (MERN + RAG)
 
-> A production-ready, full-stack Retrieval-Augmented Generation (RAG) assistant designed for Indian University students to query official PDF documents (admission guidelines, fee structures, examination rules, syllabus) with **zero hallucinations**, **dynamic confidence ratings**, **MongoDB Atlas metadata storage**, and an **Admin Upload Hub**.
+> A production-ready, full-stack Retrieval-Augmented Generation (RAG) assistant designed for Indian University students to query official PDF documents (admission guidelines, fee structures, examin[...]
 
 ![UniGuide AI Dashboard Preview](docs/images/dashboard_preview.png)
 
@@ -14,7 +14,7 @@
 
 **Watch the full demo (Google Drive):** [View Demo Video](https://drive.google.com/file/d/1KwtBSWSbu_Wxh8rFHdeJNfqwqW006rmq/view?usp=sharing)
 
-> Note: GitHub's README rendering may strip or block iframes for security; if the inline preview does not display on GitHub, use the link above to view the video on Google Drive. For embedding in GitHub Pages or other HTML-capable renderers, the preview iframe will work.
+> Note: GitHub's README rendering may strip or block iframes for security; if the inline preview does not display on GitHub, use the link above to view the video on Google Drive. For embedding in [...]
 
 See UniGuide AI in action as it processes university PDFs, answers student queries with confidence scores, and exports chat sessions in real-time.
 
@@ -24,7 +24,8 @@ See UniGuide AI in action as it processes university PDFs, answers student queri
 
 | Resource | URL Link | Status |
 | :--- | :--- | :--- |
-| **🚀 Live Demo App** | [https://uniguide-ai.vercel.app](https://uniguide-ai.vercel.app) | `Active (Production)` |
+| **🚀 Live Demo App (Vercel)** | [https://uniguide-ai.vercel.app](https://uniguide-ai.vercel.app) | `Active (Production)` |
+| **🚀 Live Demo App (Render)** | [https://rag-document-ihnt.onrender.com](https://rag-document-ihnt.onrender.com) | `Active (Production)` |
 | **⚙️ Backend API Endpoint** | [https://uniguide-backend.onrender.com/api/v1](https://uniguide-backend.onrender.com/api/v1) | `Online` |
 | **📖 OpenAPI Swagger Docs** | [https://uniguide-backend.onrender.com/docs](https://uniguide-backend.onrender.com/docs) | `Interactive` |
 | **💻 Frontend URL** | [https://uniguide-ai.vercel.app](https://uniguide-ai.vercel.app) | `Vite + React 18` |
@@ -34,7 +35,7 @@ See UniGuide AI in action as it processes university PDFs, answers student queri
 ## 🌟 Key Features & Architecture
 
 - 🍃 **MongoDB Atlas Metadata Store**: Document metadata, upload records, and ingestion status are persisted in MongoDB Atlas for consistency with MERN stack standards.
-- 🔐 **Admin Upload Page & RBAC**: Dedicated Admin Upload Hub for administrators to upload PDFs, run vector index chunking, and purge files. Students enjoy a search & Q&A interface without administrative controls.
+- 🔐 **Admin Upload Page & RBAC**: Dedicated Admin Upload Hub for administrators to upload PDFs, run vector index chunking, and purge files. Students enjoy a search & Q&A interface without admin[...]
 - 🧠 **ChromaDB Vector Database**: Persistent vector embeddings with sentence-transformer embeddings (`BAAI/bge-small-en-v1.5` / `all-MiniLM-L6-v2`).
 - 🎯 **Clean Direct Answers**: Strips away OCR noise, raw context headers, and document tags to present concise, exact answers directly to the student.
 - ⚡ **Dynamic RAG Confidence Score Engine**: Calculates real-time mathematical confidence scores ($0.0 - 1.0$) and qualitative ratings (`High Confidence`, `Medium Confidence`, `Low Confidence`).
@@ -53,7 +54,7 @@ flowchart TD
         AdminHub[Admin Upload Page & Management Hub]
         Speech[Voice Input Web Speech API]
         RoleControl[Role Switcher: Student vs Admin]
-    end
+        end
 
     subgraph Server ["Backend (FastAPI Engine)"]
         API[FastAPI Router /api/v1]
@@ -62,17 +63,17 @@ flowchart TD
         Chunker[LangChain Recursive Splitter]
         RAGPipeline[Executive RAG Pipeline & HyDE Query Expansion]
         ConfidenceEngine[Confidence Metric Calculator]
-    end
+        end
 
     subgraph Storage ["Persistent Data Layer"]
         MongoDB[(MongoDB Atlas Metadata DB)]
         Chroma[(ChromaDB Vector Store)]
         Uploads[(PDF File Storage)]
-    end
+        end
 
     subgraph LLM ["Generative AI Layer"]
         Gemini[Google Gemini API / Fallback Exact-Fact Extractor]
-    end
+        end
 
     RoleControl -->|Role Headers| API
     UI -->|Chat Queries| API
@@ -103,23 +104,29 @@ rag_documents/
 │   │   │       ├── endpoints/
 │   │   │       │   ├── chat.py            # RAG Q&A query execution
 │   │   │       │   ├── documents.py       # MongoDB document list & stats
-│   │   │       │   ├── ingest.py          # Admin vector embedding ingestion
-│   │   │       │   └── upload.py          # Admin PDF upload & MongoDB sync
+│   │   │       │   │   ├── ingest.py          # Admin vector embedding ingestion
+│   │   │       │   │   └── upload.py          # Admin PDF upload & MongoDB sync
+│   │   │       │   └── router.py              # API v1 router definition
 │   │   │       └── router.py              # API v1 router definition
 │   │   ├── core/
 │   │   │   ├── config.py                  # Pydantic environment & Atlas settings
 │   │   │   ├── database.py                # MongoDB Atlas PyMongo client & repo
-│   │   │   ├── logging.py                 # Structured logger setup
+│   │   │   │   ├── logging.py                 # Structured logger setup
+│   │   │   │   └── security.py                # Admin role authorization guard
 │   │   │   └── security.py                # Admin role authorization guard
 │   │   ├── models/
 │   │   │   └── document.py                # MongoDB Document metadata model
 │   │   ├── rag/
 │   │   │   ├── embeddings.py              # HuggingFace Embeddings loader
+│   │   │   │   ├── pipeline.py                # RAG pipeline, HyDE & confidence math
+│   │   │   │   ├── text_splitter.py           # Recursive page chunker
+│   │   │   │   └── vector_store.py            # ChromaDB vector store manager
 │   │   │   ├── pipeline.py                # RAG pipeline, HyDE & confidence math
 │   │   │   ├── text_splitter.py           # Recursive page chunker
 │   │   │   └── vector_store.py            # ChromaDB vector store manager
 │   │   ├── schemas/                       # Pydantic request/response schemas
 │   │   └── services/                      # PyMuPDF PDF extraction service
+│   │   ├── services/                      # PyMuPDF PDF extraction service
 │   ├── chroma_db/                         # Persistent ChromaDB vector index
 │   ├── uploads/                           # Local PDF file storage
 │   ├── Dockerfile                         # Backend container dockerfile
@@ -142,7 +149,7 @@ rag_documents/
 │   │   │   └── api.ts                     # Axios client with Admin headers
 │   │   ├── types/                         # TypeScript interfaces & UserRole
 │   │   ├── App.tsx                        # Master React layout & state router
-│   │   └── main.tsx                       # React DOM entry point
+│   │   │   └── main.tsx                       # React DOM entry point
 │   ├── Dockerfile                         # Frontend container dockerfile
 │   └── vite.config.ts                     # Vite build configuration
 ├── docker-compose.yml                     # Multi-container launch orchestrator
@@ -229,4 +236,3 @@ npm run dev
 ## 🛡️ License
 
 Distributed under the MIT License. See [LICENSE](LICENSE) for details.
-
