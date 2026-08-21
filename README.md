@@ -13,9 +13,9 @@
 | **🐙 GitHub Repository** | [https://github.com/Livesh28/RAG_DOCUMENT](https://github.com/Livesh28/RAG_DOCUMENT) | `Main Branch (Up to date)` |
 | **🚀 Live Application (Vercel)** | [https://uniguide-ai.vercel.app](https://uniguide-ai.vercel.app) | `Active (Production)` |
 | **🚀 Live Application (Render)** | [https://rag-document-ihnt.onrender.com](https://rag-document-ihnt.onrender.com) | `Active (Production)` |
-| **⚙️ Backend API Endpoint** | [https://uniguide-backend.onrender.com/api/v1](https://uniguide-backend.onrender.com/api/v1) | `Online` |
-| **🎯 JEE Predictor API** | [https://uniguide-backend.onrender.com/api/v1/predict](https://uniguide-backend.onrender.com/api/v1/predict) | `Interactive` |
-| **📖 OpenAPI Swagger Docs** | [https://uniguide-backend.onrender.com/docs](https://uniguide-backend.onrender.com/docs) | `Live Specs` |
+| **⚙️ Backend API Endpoint** | [https://rag-document-ihnt.onrender.com/api/v1](https://rag-document-ihnt.onrender.com/api/v1) | `Online` |
+| **🎯 JEE Predictor API** | [https://rag-document-ihnt.onrender.com/api/v1/predict](https://rag-document-ihnt.onrender.com/api/v1/predict) | `Interactive` |
+| **📖 OpenAPI Swagger Docs** | [https://rag-document-ihnt.onrender.com/docs](https://rag-document-ihnt.onrender.com/docs) | `Live Specs` |
 
 ---
 

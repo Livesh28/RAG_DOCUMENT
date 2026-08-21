@@ -6,7 +6,7 @@
   "rewrites": [
     {
       "source": "/api/v1/(.*)",
-      "destination": "https://uniguide-backend.onrender.com/api/v1/$1"
+      "destination": "https://rag-document-ihnt.onrender.com/api/v1/$1"
     },
     {
       "source": "/(.*)",
