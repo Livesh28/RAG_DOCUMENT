@@ -1,8 +1,21 @@
-# UniGuide AI – Indian University Information Assistant (MERN + RAG)
+# UniGuide AI – Indian University Information Assistant & JEE College Predictor (MERN + FastAPI + RAG)
 
-> A production-ready, full-stack Retrieval-Augmented Generation (RAG) assistant designed for Indian University students to query official PDF documents (admission guidelines, fee structures, examin[...]
+> A production-ready, full-stack Indian University Assistant and **JEE Marks-Based College Predictor & JoSAA Choice Filler** with zero hallucinations, dynamic confidence ratings, MongoDB Atlas metadata storage, ChromaDB vector search, and unified container deployment.
 
 ![UniGuide AI Dashboard Preview](docs/images/dashboard_preview.png)
+
+---
+
+## 🌐 Live Application & Deployment Links
+
+| Resource | URL Link | Deployment Status |
+| :--- | :--- | :--- |
+| **🐙 GitHub Repository** | [https://github.com/Livesh28/RAG_DOCUMENT](https://github.com/Livesh28/RAG_DOCUMENT) | `Main Branch (Up to date)` |
+| **🚀 Live Application (Vercel)** | [https://uniguide-ai.vercel.app](https://uniguide-ai.vercel.app) | `Active (Production)` |
+| **🚀 Live Application (Render)** | [https://rag-document-ihnt.onrender.com](https://rag-document-ihnt.onrender.com) | `Active (Production)` |
+| **⚙️ Backend API Endpoint** | [https://uniguide-backend.onrender.com/api/v1](https://uniguide-backend.onrender.com/api/v1) | `Online` |
+| **🎯 JEE Predictor API** | [https://uniguide-backend.onrender.com/api/v1/predict](https://uniguide-backend.onrender.com/api/v1/predict) | `Interactive` |
+| **📖 OpenAPI Swagger Docs** | [https://uniguide-backend.onrender.com/docs](https://uniguide-backend.onrender.com/docs) | `Live Specs` |
 
 ---
 
@@ -14,34 +27,29 @@
 
 **Watch the full demo (Google Drive):** [View Demo Video](https://drive.google.com/file/d/1KwtBSWSbu_Wxh8rFHdeJNfqwqW006rmq/view?usp=sharing)
 
-> Note: GitHub's README rendering may strip or block iframes for security; if the inline preview does not display on GitHub, use the link above to view the video on Google Drive. For embedding in [...]
-
-See UniGuide AI in action as it processes university PDFs, answers student queries with confidence scores, and exports chat sessions in real-time.
-
----
-
-## 🌐 Live Application & Deployment Links
-
-| Resource | URL Link | Status |
-| :--- | :--- | :--- |
-| **🚀 Live Demo App (Vercel)** | [https://uniguide-ai.vercel.app](https://uniguide-ai.vercel.app) | `Active (Production)` |
-| **🚀 Live Demo App (Render)** | [https://rag-document-ihnt.onrender.com](https://rag-document-ihnt.onrender.com) | `Active (Production)` |
-| **⚙️ Backend API Endpoint** | [https://uniguide-backend.onrender.com/api/v1](https://uniguide-backend.onrender.com/api/v1) | `Online` |
-| **📖 OpenAPI Swagger Docs** | [https://uniguide-backend.onrender.com/docs](https://uniguide-backend.onrender.com/docs) | `Interactive` |
-| **💻 Frontend URL** | [https://uniguide-ai.vercel.app](https://uniguide-ai.vercel.app) | `Vite + React 18` |
-
 ---
 
 ## 🌟 Key Features & Architecture
 
-- 🍃 **MongoDB Atlas Metadata Store**: Document metadata, upload records, and ingestion status are persisted in MongoDB Atlas for consistency with MERN stack standards.
-- 🔐 **Admin Upload Page & RBAC**: Dedicated Admin Upload Hub for administrators to upload PDFs, run vector index chunking, and purge files. Students enjoy a search & Q&A interface without admin[...]
-- 🧠 **ChromaDB Vector Database**: Persistent vector embeddings with sentence-transformer embeddings (`BAAI/bge-small-en-v1.5` / `all-MiniLM-L6-v2`).
-- 🎯 **Clean Direct Answers**: Strips away OCR noise, raw context headers, and document tags to present concise, exact answers directly to the student.
-- ⚡ **Dynamic RAG Confidence Score Engine**: Calculates real-time mathematical confidence scores ($0.0 - 1.0$) and qualitative ratings (`High Confidence`, `Medium Confidence`, `Low Confidence`).
-- 📄 **Page-Level Vector Ingestion**: Extracts text page-by-page using PyMuPDF (`fitz`) while maintaining precise source and page metadata across chunking stages.
-- 🎙️ **Voice Input Support**: Integrated Web Speech Recognition API allowing hands-free voice questions in the interactive chat interface.
-- 💾 **Export Chat Guidance**: Export full student Q&A sessions into formatted Markdown (`.md`) files for printing or offline review.
+- 🎯 **JEE Marks & Rank College Predictor Tool**:
+  - Predicts eligible engineering colleges based on **JEE Main Subject Marks** (`MATHS`, `PHYSICS`, `CHEMISTRY` out of 100 each) or total score out of 300.
+  - Supports direct input of **JEE Main Percentile**, **JEE Main All India Rank (AIR)**, or **JEE Advanced Rank**.
+  - Calculates estimated Percentile and AIR using normalized NTA distribution models.
+  - Filters by Community Category (`OC`, `OBC-NCL`, `EWS`, `SC`, `ST`, `PwD`), Preferred Branch, and Preferred Region (`IITs`, `NITs`, `IIITs`, `GFTIs`, `State/Private`).
+  - Categorizes admission chances into 🟢 **High Chance** (>85%), 🟡 **Moderate Chance** (50-85%), and 🔴 **Dream Chance** (<50%).
+
+- ⚡ **JoSAA / CSAB AI Choice Filler Assistant**:
+  - Generates an optimal choice preference order list for JoSAA counselling rounds based on candidate AIR, branch preference, and strategic risk tiering.
+  - Export preference order directly to formatted Markdown (`.md`) or copy to clipboard.
+
+- 🧠 **Retrieval-Augmented Generation (RAG) Q&A**:
+  - Answers student questions on university syllabus, fee structure, admission guidelines, and hostel rules with **zero hallucinations** and page-level source citations.
+
+- 🍃 **MongoDB Atlas Metadata Store**:
+  - Document metadata, upload records, and ingestion status are persisted in MongoDB Atlas.
+
+- 🔐 **Admin Upload Page & RBAC**:
+  - Dedicated Admin Upload Hub for administrators to upload PDFs, run vector index chunking, and purge files.
 
 ---
 
@@ -51,32 +59,38 @@ See UniGuide AI in action as it processes university PDFs, answers student queri
 flowchart TD
     subgraph Client ["Frontend (React + Vite + TypeScript)"]
         UI[Glassmorphism Dashboard & Chat]
+        PredictorUI[JEE Marks & Rank College Predictor Tool]
+        ChoiceFiller[JoSAA AI Choice Filler Assistant]
         AdminHub[Admin Upload Page & Management Hub]
-        Speech[Voice Input Web Speech API]
         RoleControl[Role Switcher: Student vs Admin]
-        end
+    end
 
     subgraph Server ["Backend (FastAPI Engine)"]
         API[FastAPI Router /api/v1]
+        PredictorEngine[JEE Percentile, AIR & Cutoff Matcher Engine]
         Security[Admin Privilege Verification Header]
         PDFService[PyMuPDF PDF Text Service]
         Chunker[LangChain Recursive Splitter]
         RAGPipeline[Executive RAG Pipeline & HyDE Query Expansion]
         ConfidenceEngine[Confidence Metric Calculator]
-        end
+    end
 
     subgraph Storage ["Persistent Data Layer"]
         MongoDB[(MongoDB Atlas Metadata DB)]
         Chroma[(ChromaDB Vector Store)]
+        CutoffDB[(JoSAA / CSAB Cutoff Matrix DB)]
         Uploads[(PDF File Storage)]
-        end
+    end
 
     subgraph LLM ["Generative AI Layer"]
         Gemini[Google Gemini API / Fallback Exact-Fact Extractor]
-        end
+    end
 
     RoleControl -->|Role Headers| API
     UI -->|Chat Queries| API
+    PredictorUI -->|POST /api/v1/predict| PredictorEngine
+    PredictorEngine --> CutoffDB
+    PredictorEngine -->|Rank Match & Strategic Order| ChoiceFiller
     AdminHub -->|Upload / Ingest / Delete| Security
     Security --> API
     API --> MongoDB
@@ -104,59 +118,40 @@ rag_documents/
 │   │   │       ├── endpoints/
 │   │   │       │   ├── chat.py            # RAG Q&A query execution
 │   │   │       │   ├── documents.py       # MongoDB document list & stats
-│   │   │       │   │   ├── ingest.py          # Admin vector embedding ingestion
-│   │   │       │   │   └── upload.py          # Admin PDF upload & MongoDB sync
-│   │   │       │   └── router.py              # API v1 router definition
+│   │   │       │   ├── ingest.py          # Admin vector embedding ingestion
+│   │   │       │   ├── predictor.py       # JEE Marks/Rank Predictor & Choice Engine
+│   │   │       │   └── upload.py          # Admin PDF upload & MongoDB sync
 │   │   │       └── router.py              # API v1 router definition
 │   │   ├── core/
-│   │   │   ├── config.py                  # Pydantic environment & Atlas settings
-│   │   │   ├── database.py                # MongoDB Atlas PyMongo client & repo
-│   │   │   │   ├── logging.py                 # Structured logger setup
-│   │   │   │   └── security.py                # Admin role authorization guard
-│   │   │   └── security.py                # Admin role authorization guard
 │   │   ├── models/
-│   │   │   └── document.py                # MongoDB Document metadata model
 │   │   ├── rag/
-│   │   │   ├── embeddings.py              # HuggingFace Embeddings loader
-│   │   │   │   ├── pipeline.py                # RAG pipeline, HyDE & confidence math
-│   │   │   │   ├── text_splitter.py           # Recursive page chunker
-│   │   │   │   └── vector_store.py            # ChromaDB vector store manager
-│   │   │   ├── pipeline.py                # RAG pipeline, HyDE & confidence math
-│   │   │   ├── text_splitter.py           # Recursive page chunker
-│   │   │   └── vector_store.py            # ChromaDB vector store manager
-│   │   ├── schemas/                       # Pydantic request/response schemas
-│   │   └── services/                      # PyMuPDF PDF extraction service
-│   │   ├── services/                      # PyMuPDF PDF extraction service
-│   ├── chroma_db/                         # Persistent ChromaDB vector index
-│   ├── uploads/                           # Local PDF file storage
-│   ├── Dockerfile                         # Backend container dockerfile
+│   │   ├── schemas/                       # Pydantic schemas (predictor.py, chat.py)
+│   │   └── services/
 │   ├── main.py                            # FastAPI application entrypoint
 │   └── requirements.txt                   # Python backend dependencies
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
-│   │   │   ├── ChatInterface.tsx          # Q&A conversation interface
-│   │   │   ├── ChatMessage.tsx            # Message card with confidence badge
-│   │   │   ├── CitationCard.tsx           # Page-level PDF source citation
-│   │   │   ├── DocumentManager.tsx        # Document browser & FAQ modal
-│   │   │   ├── Navbar.tsx                 # Header with Student/Admin role switcher
-│   │   │   └── Sidebar.tsx                # System navigation & ChromaDB status
+│   │   │   ├── AIChoiceFillerModal.tsx    # JoSAA Choice Preference Order Modal
+│   │   │   ├── HeroSection.tsx            # JEE College Predictor Hero Banner
+│   │   │   ├── Navbar.tsx                 # Top header matching UniGuide AI design
+│   │   │   └── Sidebar.tsx                # System navigation & JEE Predictor tab
 │   │   ├── pages/
-│   │   │   ├── AdminUploadPage.tsx        # Dedicated Admin PDF Upload & Index Hub
-│   │   │   ├── Dashboard.tsx              # Student Q&A dashboard & metrics
+│   │   │   ├── AdminUploadPage.tsx        # Dedicated Admin PDF Upload Hub
+│   │   │   ├── Dashboard.tsx              # Student Q&A dashboard
+│   │   │   ├── PredictorPage.tsx          # JEE Marks College Predictor Tool
 │   │   │   └── SettingsPage.tsx           # System architecture overview
 │   │   ├── services/
-│   │   │   └── api.ts                     # Axios client with Admin headers
-│   │   ├── types/                         # TypeScript interfaces & UserRole
+│   │   │   └── api.ts                     # Axios client & predictColleges method
+│   │   ├── types/                         # TypeScript interfaces
 │   │   ├── App.tsx                        # Master React layout & state router
-│   │   │   └── main.tsx                       # React DOM entry point
-│   ├── Dockerfile                         # Frontend container dockerfile
+│   │   └── main.tsx                       # React DOM entry point
+│   ├── vercel.json                        # Vercel SPA build configuration
 │   └── vite.config.ts                     # Vite build configuration
+├── vercel.json                            # Root Vercel deployment routing configuration
 ├── docker-compose.yml                     # Multi-container launch orchestrator
-├── LICENSE                                # MIT Open Source License
 ├── README.md                              # Technical documentation
-├── render.yaml                            # Render Blueprint deployment configuration
-└── start_production.sh                    # Automated local startup launcher script
+└── start_production.sh                    # Automated production launcher script
 ```
 
 ---
@@ -165,74 +160,26 @@ rag_documents/
 
 | Method | Endpoint | Access Role | Description |
 | :--- | :--- | :--- | :--- |
+| `POST` | `/api/v1/predict` | `Student / Admin` | Predicts eligible IITs, NITs, IIITs, GFTIs, and state colleges based on JEE subject marks, percentile, AIR, category, and preferred branch. |
 | `POST` | `/api/v1/chat` | `Student / Admin` | Submits chat question, performs similarity search, and returns direct answer with confidence score and page citations. |
 | `GET` | `/api/v1/documents` | `Student / Admin` | Returns list of uploaded PDF documents and MongoDB Atlas metadata. |
 | `GET` | `/api/v1/documents/stats` | `Student / Admin` | Returns aggregate metrics (total files, ingested vectors, extracted pages). |
-| `GET` | `/api/v1/documents/{id}/faqs` | `Student / Admin` | Auto-generates structured admission FAQs for a specific document. |
 | `POST` | `/api/v1/upload` | 🔒 `Admin Only` | Uploads a university PDF document and registers metadata in MongoDB Atlas. |
 | `POST` | `/api/v1/ingest` | 🔒 `Admin Only` | Extracts text, generates dense vector embeddings, and indexes chunks in ChromaDB. |
 | `DELETE` | `/api/v1/documents/{id}` | 🔒 `Admin Only` | Removes PDF file, purges vector embeddings from ChromaDB, and deletes metadata from MongoDB Atlas. |
 
 ---
 
-## 💻 Tech Stack
-
-- **Frontend**: React 18, TypeScript, Vite, TailwindCSS, Axios, Lucide Icons, React Markdown, Web Speech API.
-- **Backend**: Python 3.9+, FastAPI, PyMuPDF (`fitz`), PyMongo (MongoDB Atlas Driver), Pydantic v2.
-- **Metadata Database**: MongoDB Atlas.
-- **Vector DB & ML**: LangChain, ChromaDB, `BAAI/bge-small-en-v1.5` / `all-MiniLM-L6-v2` embeddings, Google Gemini API (`google-genai`).
-
----
-
 ## 🚀 Quickstart & Setup Guide
 
-### Method 1: Running via Local Launch Script
+### Local Host Launch
+
+To host and run locally on your system:
 
 ```bash
 bash start_production.sh
 ```
 
----
-
-### Method 2: Manual Setup
-
-#### Step 1: Backend Setup
-```bash
-cd backend
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
-
-# Configure Environment Variables
-cp .env.example .env
-# Set your GEMINI_API_KEY and MONGODB_URI inside backend/.env
-
-# Launch FastAPI Server
-python main.py
-```
-*Backend runs at:* `http://localhost:8000` (Swagger docs at `http://localhost:8000/docs`)
-
-#### Step 2: Frontend Setup
-```bash
-cd frontend
-export PATH=/Users/livesh/recommendation/node_bin/bin:$PATH
-npm install
-npm run dev
-```
-*Frontend runs at:* `http://localhost:3000`
-
----
-
-## 🔮 Future Enhancements
-
-- [ ] **Multi-Tenant University Support**: Segregate document repositories and vector collections by university branch and department.
-- [ ] **Hybrid BM25 + Vector Search**: Combine sparse keyword search with dense embeddings for optimal accuracy on alphanumeric course codes and fee figures.
-- [ ] **OAuth2 JWT Authentication**: Production user login system supporting OAuth2 social login (Google/GitHub) and RBAC claims.
-- [ ] **Automated OCR Preprocessing**: Integrated Tesseract/EasyOCR fallback for scanned PDF documents.
-- [ ] **Real-Time Webhook Notifications**: Trigger push notifications when new admission brochures are uploaded and indexed.
-
----
-
-## 🛡️ License
-
-Distributed under the MIT License. See [LICENSE](LICENSE) for details.
+- **Frontend App**: [http://localhost:3000](http://localhost:3000)
+- **FastAPI Backend**: [http://localhost:8000](http://localhost:8000)
+- **OpenAPI Swagger**: [http://localhost:8000/docs](http://localhost:8000/docs)
