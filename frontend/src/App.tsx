@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { Navbar } from './components/Navbar';
 import { Dashboard } from './pages/Dashboard';
+import { PredictorPage } from './pages/PredictorPage';
 import { DocumentManager } from './components/DocumentManager';
 import { AdminUploadPage } from './pages/AdminUploadPage';
 import { SettingsPage } from './pages/SettingsPage';
@@ -10,7 +11,7 @@ import { apiService } from './services/api';
 
 export const App: React.FC = () => {
   const [role, setRole] = useState<UserRole>('student');
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'documents' | 'settings' | 'admin-upload'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'predictor' | 'documents' | 'settings' | 'admin-upload'>('predictor');
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isUploading, setIsUploading] = useState<boolean>(false);
@@ -116,6 +117,11 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleAskInChatFromPredictor = (question: string) => {
+    setActiveTab('dashboard');
+    handleSendMessage(question);
+  };
+
   return (
     <div className="flex h-screen bg-slate-950 text-slate-100 overflow-hidden">
       <Sidebar
@@ -128,7 +134,7 @@ export const App: React.FC = () => {
       />
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <Navbar activeTab={activeTab} role={role} setRole={setRole} />
+        <Navbar activeTab={activeTab} setActiveTab={setActiveTab} role={role} setRole={setRole} />
 
         <main className="flex-1 overflow-y-auto p-6">
           {activeTab === 'dashboard' && (
@@ -145,6 +151,10 @@ export const App: React.FC = () => {
               isChatLoading={isChatLoading}
               role={role}
             />
+          )}
+
+          {activeTab === 'predictor' && (
+            <PredictorPage onAskInChat={handleAskInChatFromPredictor} />
           )}
 
           {activeTab === 'documents' && (
@@ -176,5 +186,6 @@ export const App: React.FC = () => {
     </div>
   );
 };
+
 
 export default App;

@@ -62,3 +62,71 @@ export interface FAQResponse {
   filename: string;
   faqs: FAQItem[];
 }
+
+export type PredictorInputMode = 'marks' | 'percentile' | 'rank' | 'advanced';
+
+export interface PredictorRequest {
+  input_mode: PredictorInputMode;
+  maths_marks: number;
+  physics_marks: number;
+  chemistry_marks: number;
+  jee_main_marks?: number;
+  jee_main_percentile?: number;
+  jee_main_rank?: number;
+  jee_advanced_rank?: number;
+  category: string;
+  gender: string;
+  home_state: string;
+  preferred_branch: string;
+  institution_type: string;
+}
+
+export interface CollegePrediction {
+  id: string;
+  institute_name: string;
+  short_name: string;
+  type: 'IIT' | 'NIT' | 'IIIT' | 'GFTI' | 'State/Private' | string;
+  location: string;
+  state: string;
+  branch: string;
+  category: string;
+  opening_rank: number;
+  closing_rank: number;
+  candidate_rank: number;
+  chance_level: 'High' | 'Moderate' | 'Dream';
+  chance_percentage: number;
+  avg_package_lpa: number;
+  annual_fee_lakhs: number;
+  nirf_rank?: number;
+  recommendation_reason: string;
+}
+
+export interface ChoiceFillingItem {
+  preference_number: number;
+  institute_name: string;
+  branch: string;
+  type: string;
+  closing_rank: number;
+  chance_level: string;
+  strategy_note: string;
+}
+
+export interface PredictorResponse {
+  total_score: number;
+  maths_score: number;
+  physics_score: number;
+  chemistry_score: number;
+  estimated_percentile: number;
+  estimated_air: number;
+  category_rank: number;
+  category: string;
+  gender: string;
+  input_mode: string;
+  total_matches: number;
+  high_chance_count: number;
+  moderate_chance_count: number;
+  dream_chance_count: number;
+  predictions: CollegePrediction[];
+  choice_filling_order: ChoiceFillingItem[];
+}
+

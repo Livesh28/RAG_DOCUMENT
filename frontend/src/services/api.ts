@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { DocumentListResponse, DocumentItem, IngestResponse, SourceCitation, SystemStats } from '../types';
+import { DocumentListResponse, DocumentItem, IngestResponse, SourceCitation, SystemStats, PredictorRequest, PredictorResponse } from '../types';
 
 const getBaseUrl = () => {
   const envUrl = import.meta.env.VITE_API_BASE_URL;
@@ -77,6 +77,12 @@ export const apiService = {
     return response.data;
   },
 
+  // Predict colleges based on JEE subject marks / score / percentile / category
+  async predictColleges(requestData: PredictorRequest): Promise<PredictorResponse> {
+    const response = await apiClient.post<PredictorResponse>('/predict', requestData);
+    return response.data;
+  },
+
   // Auto-generate FAQs for a document
   async getDocumentFAQs(documentId: number): Promise<{ document_id: number; filename: string; faqs: any[] }> {
     const response = await apiClient.get<{ document_id: number; filename: string; faqs: any[] }>(`/documents/${documentId}/faqs`);
@@ -98,3 +104,4 @@ export const apiService = {
     return response.data;
   },
 };
+

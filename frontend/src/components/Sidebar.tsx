@@ -10,13 +10,15 @@ import {
   RefreshCw,
   Layers,
   UploadCloud,
-  Lock
+  Lock,
+  Calculator,
+  Sparkles
 } from 'lucide-react';
 import { DocumentItem, UserRole } from '../types';
 
 interface SidebarProps {
-  activeTab: 'dashboard' | 'documents' | 'settings' | 'admin-upload';
-  setActiveTab: (tab: 'dashboard' | 'documents' | 'settings' | 'admin-upload') => void;
+  activeTab: 'dashboard' | 'predictor' | 'documents' | 'settings' | 'admin-upload';
+  setActiveTab: (tab: 'dashboard' | 'predictor' | 'documents' | 'settings' | 'admin-upload') => void;
   documents: DocumentItem[];
   onIngestAll: () => void;
   isIngesting: boolean;
@@ -65,6 +67,25 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <LayoutDashboard className={`w-4 h-4 ${activeTab === 'dashboard' ? 'text-brand-600' : ''}`} />
           <span>Dashboard & Chat</span>
         </button>
+
+        {/* JEE College Predictor Navigation Item */}
+        <button
+          onClick={() => setActiveTab('predictor')}
+          className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-semibold text-xs tracking-wide transition-all duration-150 ${
+            activeTab === 'predictor'
+              ? 'bg-gradient-to-r from-brand-600 to-indigo-600 text-white shadow-md shadow-brand-600/20'
+              : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100 border border-transparent'
+          }`}
+        >
+          <div className="flex items-center gap-3">
+            <Calculator className="w-4 h-4" />
+            <span>JEE Predictor Tool</span>
+          </div>
+          <span className="text-[9px] bg-amber-400 text-slate-950 font-black px-1.5 py-0.5 rounded uppercase tracking-wide">
+            HOT
+          </span>
+        </button>
+
 
         <button
           onClick={() => setActiveTab('documents')}

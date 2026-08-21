@@ -14,13 +14,13 @@ if command -v docker &> /dev/null && (command -v docker-compose &> /dev/null || 
     fi
 else
     echo "ℹ️ Docker is not installed on this machine. Launching UniGuide AI services directly..."
+    export PATH=/Users/livesh/recommendation/node_bin/bin:$PATH
     echo "⚙️ Starting FastAPI backend server..."
-    cd /Users/livesh/rag_documents/backend
+    cd "$(dirname "$0")/backend"
     ./venv/bin/python main.py &
     
     echo "💻 Starting React frontend server..."
-    cd /Users/livesh/rag_documents/frontend
-    export PATH=/Users/livesh/recommendation/node_bin/bin:$PATH
+    cd "$(dirname "$0")/frontend"
     npm run dev &
 fi
 
