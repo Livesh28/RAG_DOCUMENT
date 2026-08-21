@@ -219,36 +219,58 @@ export const PredictorPage: React.FC<PredictorPageProps> = ({ onAskInChat }) => 
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-16">
-      {/* Top Banner Header */}
-      <div className="bg-gradient-to-r from-slate-900 via-brand-950 to-indigo-950 text-white rounded-3xl p-8 shadow-xl border border-slate-800 relative overflow-hidden">
-        <div className="absolute top-0 right-0 transform translate-x-12 -translate-y-12 w-96 h-96 bg-brand-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="p-2 bg-brand-500/20 text-brand-300 rounded-xl border border-brand-500/30">
-                <Calculator className="w-5 h-5 text-brand-400" />
-              </span>
-              <span className="text-xs font-bold uppercase tracking-widest text-brand-300">
-                UniGuide AI Academic Predictor
-              </span>
-            </div>
-            <h1 className="text-3xl font-black tracking-tight text-white">
-              JEE College Predictor & JoSAA Choice Filler
-            </h1>
-            <p className="text-sm text-slate-300 max-w-2xl font-normal leading-relaxed">
-              Enter your JEE Main subject marks, percentile, or rank to discover eligible IITs, NITs, IIITs, GFTIs, and premier engineering universities based on previous years' JoSAA/CSAB cutoff trends.
-            </p>
+      {/* Top Hero Banner matching user's requested layout */}
+      <div className="relative bg-slate-900 text-white rounded-3xl p-8 md:p-12 shadow-2xl border border-slate-800 space-y-6 overflow-hidden">
+        <div 
+          className="absolute inset-0 bg-cover bg-center opacity-20 pointer-events-none mix-blend-overlay"
+          style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&q=80&w=1600")' }}
+        />
+        <div className="relative z-10 space-y-5 max-w-4xl">
+          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-1 text-xs font-semibold text-emerald-400">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span>Admissions Open 2025-26</span>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0">
+          <h1 className="text-4xl md:text-6xl font-black tracking-tight text-white leading-[1.1]">
+            Find the Right <br />
+            <span className="bg-gradient-to-r from-brand-400 via-indigo-300 to-amber-300 bg-clip-text text-transparent">Engineering College</span>
+          </h1>
+
+          <p className="text-sm md:text-base text-slate-300 font-normal leading-relaxed max-w-2xl">
+            UniGuide Ai provides data-backed analysis using <strong className="text-white font-bold underline decoration-brand-500 decoration-2">JEE Main & JEE Advanced cutoff trends</strong> to help you discover your ideal academic destination. Trust the numbers, not just the names.
+          </p>
+
+          <div className="flex flex-wrap items-center gap-4 pt-2">
             <button
-              onClick={() => setIsChoiceModalOpen(true)}
-              disabled={!results || results.choice_filling_order.length === 0}
-              className="flex items-center gap-2 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 font-extrabold px-5 py-3 rounded-2xl transition shadow-lg shadow-amber-500/20 disabled:opacity-50 text-xs tracking-wide"
+              onClick={handlePredict}
+              className="flex items-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-600 px-6 py-3.5 text-sm font-extrabold text-slate-950 shadow-lg shadow-amber-500/20 transition-all"
             >
-              <Sparkles className="w-4 h-4 text-slate-950" />
-              <span>AI Choice Filler Helper</span>
+              <span>Predict Your College</span>
+              <ArrowRight className="h-4 w-4" />
             </button>
+
+            <button
+              onClick={() => setInstitutionType('All')}
+              className="flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800/80 px-6 py-3.5 text-sm font-semibold text-slate-200 hover:bg-slate-700 transition-all"
+            >
+              <span>Browse All Institutions</span>
+            </button>
+          </div>
+
+          {/* Bottom Stats Grid matching user's reference */}
+          <div className="grid grid-cols-3 gap-6 pt-6 border-t border-slate-800/80 text-left max-w-2xl">
+            <div>
+              <div className="text-3xl font-black text-white font-mono">450+</div>
+              <div className="text-xs text-slate-400 font-semibold mt-0.5">IITs, NITs & IIITs</div>
+            </div>
+            <div>
+              <div className="text-3xl font-black text-amber-400 font-mono">98%</div>
+              <div className="text-xs text-slate-400 font-semibold mt-0.5">Placement Tracking</div>
+            </div>
+            <div>
+              <div className="text-3xl font-black text-brand-400 font-mono">200k+</div>
+              <div className="text-xs text-slate-400 font-semibold mt-0.5">JEE Cutoffs Analyzed</div>
+            </div>
           </div>
         </div>
       </div>
