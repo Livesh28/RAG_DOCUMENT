@@ -553,6 +553,25 @@ def calculate_category_rank(air: int, category: str) -> int:
     return max(1, int(air * mult))
 
 
+@router.get("", tags=["JEE Predictor"])
+@router.get("/", tags=["JEE Predictor"])
+async def predictor_info():
+    """Returns metadata and usage instructions for the JEE Predictor endpoint."""
+    return {
+        "endpoint": "/api/v1/predict",
+        "method": "POST",
+        "description": "Submit candidate JEE subject marks (Maths, Physics, Chemistry), score, percentile, AIR, and category to retrieve college predictions and JoSAA choice preference order.",
+        "sample_request": {
+            "input_mode": "marks",
+            "maths_marks": 90,
+            "physics_marks": 85,
+            "chemistry_marks": 80,
+            "category": "OPEN",
+            "preferred_branch": "All Branches",
+            "institution_type": "All"
+        }
+    }
+
 @router.post("", response_model=PredictorResponse)
 @router.post("/", response_model=PredictorResponse)
 async def predict_colleges(req: PredictorRequest):
