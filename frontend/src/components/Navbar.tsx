@@ -1,113 +1,138 @@
 import React from 'react';
-import { ShieldCheck, Sparkles, Activity, User, Lock, Calculator, Compass, BookOpen } from 'lucide-react';
+import { Compass, Moon, Sun, User, Sparkles, Calculator, BookOpen, Layers } from 'lucide-react';
 import { UserRole } from '../types';
 
 interface NavbarProps {
-  activeTab: 'dashboard' | 'predictor' | 'documents' | 'settings' | 'admin-upload';
-  setActiveTab: (tab: 'dashboard' | 'predictor' | 'documents' | 'settings' | 'admin-upload') => void;
+  activeTab: 'home' | 'predictor' | 'choice-filler' | 'scholarships' | 'alternate' | 'documents' | 'admin';
+  setActiveTab: (tab: 'home' | 'predictor' | 'choice-filler' | 'scholarships' | 'alternate' | 'documents' | 'admin') => void;
   role: UserRole;
   setRole: (role: UserRole) => void;
+  onOpenChat: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, role, setRole }) => {
-  const getTitle = () => {
-    switch (activeTab) {
-      case 'dashboard':
-        return 'Student Information & RAG Q&A Assistant';
-      case 'predictor':
-        return 'JEE Marks & Rank College Predictor Tool';
-      case 'documents':
-        return 'University Knowledge Base & Documents';
-      case 'admin-upload':
-        return 'Admin PDF Document & Ingestion Manager';
-      case 'settings':
-        return 'UniGuide AI System & MongoDB Atlas Configuration';
-      default:
-        return 'Dashboard';
-    }
-  };
-
+export const Navbar: React.FC<NavbarProps> = ({
+  activeTab,
+  setActiveTab,
+  role,
+  setRole,
+  onOpenChat,
+}) => {
   return (
-    <header className="h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 px-6 flex items-center justify-between sticky top-0 z-20 shadow-sm">
-      <div className="flex items-center gap-6">
-        <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-brand-600" />
-          <h2 className="text-sm font-bold text-slate-900 tracking-tight hidden sm:block">{getTitle()}</h2>
+    <header className="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm font-sans">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+        
+        {/* Left: Brand Logo matching reference screenshot */}
+        <div 
+          onClick={() => setActiveTab('home')}
+          className="flex items-center gap-3 cursor-pointer group select-none"
+        >
+          <div className="relative w-11 h-11 rounded-xl bg-gradient-to-tr from-[#103463] to-[#1e4d8c] flex items-center justify-center text-white shadow-md shadow-slate-900/10 group-hover:scale-105 transition-transform">
+            <Compass className="w-6 h-6 text-cyan-300" />
+            <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white flex items-center justify-center">
+              <span className="w-1.5 h-1.5 bg-white rounded-full animate-ping" />
+            </span>
+          </div>
+
+          <div className="flex flex-col">
+            <span className="text-xl font-extrabold text-[#0f172a] tracking-tight flex items-center gap-1 font-serif">
+              UniGuide <span className="text-[#1e4d8c] font-sans font-black">Ai</span>
+            </span>
+            <span className="text-[10px] font-bold tracking-widest uppercase text-slate-500 font-mono -mt-1">
+              ACADEMIC PREDICTOR
+            </span>
+          </div>
         </div>
 
-        {/* Top Navbar Nav Links matching UI reference */}
-        <nav className="hidden xl:flex items-center gap-1 bg-slate-100/80 p-1 rounded-xl border border-slate-200 text-xs">
+        {/* Center: Main Navigation Bar matching reference screenshot */}
+        <nav className="hidden md:flex items-center gap-8 font-semibold text-sm text-slate-700">
           <button
-            onClick={() => setActiveTab('dashboard')}
-            className={`px-3 py-1 rounded-lg font-bold transition ${
-              activeTab === 'dashboard' ? 'bg-white text-brand-700 shadow-sm border border-slate-200' : 'text-slate-600 hover:text-slate-900'
+            onClick={() => setActiveTab('home')}
+            className={`transition-colors py-2 relative ${
+              activeTab === 'home'
+                ? 'text-[#1e3a8a] font-bold border-b-2 border-[#1e3a8a]'
+                : 'hover:text-[#1e3a8a]'
             }`}
           >
-            Home / Chat
+            Home
           </button>
 
           <button
-            onClick={() => setActiveTab('predictor')}
-            className={`px-3 py-1 rounded-lg font-bold transition flex items-center gap-1.5 ${
-              activeTab === 'predictor' ? 'bg-gradient-to-r from-brand-600 to-indigo-600 text-white shadow-sm' : 'text-slate-700 font-extrabold hover:text-brand-600'
+            onClick={() => setActiveTab('scholarships')}
+            className={`transition-colors py-2 relative ${
+              activeTab === 'scholarships' || activeTab === 'documents'
+                ? 'text-[#1e3a8a] font-bold border-b-2 border-[#1e3a8a]'
+                : 'hover:text-[#1e3a8a]'
             }`}
           >
-            <Calculator className="w-3.5 h-3.5" />
-            <span>Predictor</span>
+            Scholarships
           </button>
 
           <button
-            onClick={() => setActiveTab('predictor')}
-            className="px-3 py-1 text-slate-600 hover:text-slate-900 font-bold transition flex items-center gap-1"
+            onClick={() => setActiveTab('choice-filler')}
+            className={`transition-colors py-2 relative flex items-center gap-1.5 ${
+              activeTab === 'choice-filler'
+                ? 'text-[#1e3a8a] font-bold border-b-2 border-[#1e3a8a]'
+                : 'hover:text-[#1e3a8a]'
+            }`}
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
             <span>AI Choice Filler</span>
           </button>
 
           <button
-            onClick={() => setActiveTab('documents')}
-            className={`px-3 py-1 rounded-lg font-bold transition ${
-              activeTab === 'documents' ? 'bg-white text-brand-700 shadow-sm border border-slate-200' : 'text-slate-600 hover:text-slate-900'
+            onClick={() => setActiveTab('predictor')}
+            className={`transition-colors py-2 relative ${
+              activeTab === 'predictor'
+                ? 'text-[#1e3a8a] font-bold border-b-2 border-[#1e3a8a]'
+                : 'hover:text-[#1e3a8a]'
             }`}
           >
-            Scholarships & PDFs
+            Predictor
+          </button>
+
+          <button
+            onClick={() => setActiveTab('alternate')}
+            className={`transition-colors py-2 relative ${
+              activeTab === 'alternate'
+                ? 'text-[#1e3a8a] font-bold border-b-2 border-[#1e3a8a]'
+                : 'hover:text-[#1e3a8a]'
+            }`}
+          >
+            Alternate Path
           </button>
         </nav>
-      </div>
 
-      <div className="flex items-center gap-3 text-xs">
-        {/* Role Switcher Button */}
-        <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 shadow-inner">
+        {/* Right: Theme Toggle & Sign In Button */}
+        <div className="flex items-center gap-4">
+          {/* Role Switcher Pill */}
           <button
-            onClick={() => setRole('student')}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-bold text-[11px] transition-all duration-150 ${
-              role === 'student'
-                ? 'bg-white text-slate-900 shadow-sm border border-slate-200'
-                : 'text-slate-500 hover:text-slate-900'
-            }`}
-          >
-            <User className="w-3.5 h-3.5 text-brand-600" />
-            <span>Student Mode</span>
-          </button>
-          <button
-            onClick={() => setRole('admin')}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-bold text-[11px] transition-all duration-150 ${
+            onClick={() => setRole(role === 'student' ? 'admin' : 'student')}
+            className={`text-xs font-bold px-2.5 py-1 rounded-full border transition ${
               role === 'admin'
-                ? 'bg-gradient-to-r from-brand-600 to-indigo-600 text-white shadow-sm'
-                : 'text-slate-500 hover:text-slate-900'
+                ? 'bg-amber-100 text-amber-800 border-amber-300'
+                : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
             }`}
           >
-            <Lock className="w-3.5 h-3.5" />
-            <span>Admin Mode</span>
+            {role === 'admin' ? 'Role: ADMIN' : 'Role: STUDENT'}
           </button>
-        </div>
 
-        <div className="hidden md:flex items-center gap-2 text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl font-semibold shadow-sm">
-          <Activity className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
-          <span>FastAPI Engine Online</span>
+          {/* Theme Mode Toggle Icon */}
+          <button 
+            className="p-2 text-slate-600 hover:text-slate-900 rounded-full hover:bg-slate-100 transition"
+            title="Toggle theme"
+          >
+            <Moon className="w-5 h-5 text-slate-700" />
+          </button>
+
+          {/* Sign In Button matching reference screenshot */}
+          <button 
+            onClick={onOpenChat}
+            className="flex items-center gap-2 bg-[#1e3a8a] hover:bg-[#152a65] text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all duration-150"
+          >
+            <User className="w-4 h-4 text-white" />
+            <span>Sign In</span>
+          </button>
         </div>
       </div>
     </header>
   );
 };
-

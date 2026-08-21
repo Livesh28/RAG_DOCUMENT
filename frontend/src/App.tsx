@@ -1,22 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { Sidebar } from './components/Sidebar';
 import { Navbar } from './components/Navbar';
-import { Dashboard } from './pages/Dashboard';
 import { PredictorPage } from './pages/PredictorPage';
+import { Dashboard } from './pages/Dashboard';
 import { DocumentManager } from './components/DocumentManager';
 import { AdminUploadPage } from './pages/AdminUploadPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { ChatInterface } from './components/ChatInterface';
 import { DocumentItem, ChatMessage, UserRole } from './types';
 import { apiService } from './services/api';
+import { Bot, MessageSquare, X, Sparkles } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [role, setRole] = useState<UserRole>('student');
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'predictor' | 'documents' | 'settings' | 'admin-upload'>('predictor');
+  const [activeTab, setActiveTab] = useState<'home' | 'predictor' | 'choice-filler' | 'scholarships' | 'alternate' | 'documents' | 'admin'>('predictor');
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [isIngesting, setIsIngesting] = useState<boolean>(false);
   const [isChatLoading, setIsChatLoading] = useState<boolean>(false);
+  const [isChatDrawerOpen, setIsChatDrawerOpen] = useState<boolean>(false);
 
   // Load document list from MongoDB Atlas metadata backend on mount
   const fetchDocuments = async () => {
@@ -118,26 +120,34 @@ export const App: React.FC = () => {
   };
 
   const handleAskInChatFromPredictor = (question: string) => {
-    setActiveTab('dashboard');
+    setIsChatDrawerOpen(true);
     handleSendMessage(question);
   };
 
+  const ingestedCount = documents.filter((d) => d.is_ingested).length;
+
   return (
-    <div className="flex h-screen bg-slate-950 text-slate-100 overflow-hidden">
-      <Sidebar
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col font-sans selection:bg-blue-600 selection:text-white">
+      {/* 1. Header Navigation Bar */}
+      <Navbar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        documents={documents}
-        onIngestAll={() => handleIngest()}
-        isIngesting={isIngesting}
         role={role}
+        setRole={setRole}
+        onOpenChat={() => setIsChatDrawerOpen(true)}
       />
 
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <Navbar activeTab={activeTab} setActiveTab={setActiveTab} role={role} setRole={setRole} />
+      {/* 2. Main Page Content */}
+      <main className="flex-1 py-8 px-4 sm:px-6">
+        {(activeTab === 'home' || activeTab === 'predictor' || activeTab === 'choice-filler') && (
+          <PredictorPage
+            onAskInChat={handleAskInChatFromPredictor}
+            onBrowseAllClick={() => setActiveTab('scholarships')}
+          />
+        )}
 
-        <main className="flex-1 overflow-y-auto p-6">
-          {activeTab === 'dashboard' && (
+        {(activeTab === 'scholarships' || activeTab === 'documents') && (
+          <div className="max-w-7xl mx-auto space-y-6">
             <Dashboard
               documents={documents}
               messages={messages}
@@ -151,25 +161,11 @@ export const App: React.FC = () => {
               isChatLoading={isChatLoading}
               role={role}
             />
-          )}
+          </div>
+        )}
 
-          {activeTab === 'predictor' && (
-            <PredictorPage onAskInChat={handleAskInChatFromPredictor} />
-          )}
-
-          {activeTab === 'documents' && (
-            <DocumentManager
-              documents={documents}
-              onUpload={handleUpload}
-              onIngest={handleIngest}
-              onDelete={handleDelete}
-              isUploading={isUploading}
-              isIngesting={isIngesting}
-              role={role}
-            />
-          )}
-
-          {activeTab === 'admin-upload' && (
+        {activeTab === 'admin' && (
+          <div className="max-w-7xl mx-auto">
             <AdminUploadPage
               documents={documents}
               onUpload={handleUpload}
@@ -178,14 +174,54 @@ export const App: React.FC = () => {
               isUploading={isUploading}
               isIngesting={isIngesting}
             />
-          )}
+          </div>
+        )}
 
-          {activeTab === 'settings' && <SettingsPage />}
-        </main>
-      </div>
+        {activeTab === 'alternate' && <SettingsPage />}
+      </main>
+
+      {/* 3. Floating Action AI Assistant Button (Purple button matching reference screenshot) */}
+      <button
+        onClick={() => setIsChatDrawerOpen((prev) => !prev)}
+        className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-[#4f46e5] hover:bg-[#4338ca] text-white shadow-2xl flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 group border-2 border-white"
+        title="Open UniGuide AI Assistant"
+      >
+        <Sparkles className="w-6 h-6 text-white group-hover:rotate-12 transition-transform" />
+        <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-emerald-400 rounded-full border-2 border-white" />
+      </button>
+
+      {/* 4. Slide-Over AI Chat Drawer */}
+      {isChatDrawerOpen && (
+        <div className="fixed inset-y-0 right-0 z-50 w-full max-w-lg bg-white shadow-2xl border-l border-slate-200 flex flex-col animate-in slide-in-from-right duration-200">
+          {/* Drawer Header */}
+          <div className="p-4 bg-[#1e3a8a] text-white flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Bot className="w-5 h-5 text-cyan-300" />
+              <h3 className="font-bold text-sm tracking-tight">UniGuide AI Assistant</h3>
+            </div>
+            <button
+              onClick={() => setIsChatDrawerOpen(false)}
+              className="p-1 text-white/80 hover:text-white bg-white/10 rounded-lg transition"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Drawer Chat Body */}
+          <div className="flex-1 p-4 overflow-hidden flex flex-col bg-slate-50">
+            <ChatInterface
+              messages={messages}
+              documents={documents}
+              onSendMessage={handleSendMessage}
+              isLoading={isChatLoading}
+              hasIngestedDocs={ingestedCount > 0}
+              onClearChat={() => setMessages([])}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
-
 
 export default App;
