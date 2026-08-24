@@ -11,7 +11,7 @@
 | Resource | URL Link | Deployment Status |
 | :--- | :--- | :--- |
 | **🐙 GitHub Repository** | [https://github.com/Livesh28/RAG_DOCUMENT](https://github.com/Livesh28/RAG_DOCUMENT) | `Main Branch (Up to date)` |
-| **🚀 Live Application (Vercel)** | [https://uniguide-ai.vercel.app](https://uniguide-ai.vercel.app) | `Active (Production)` |
+| **🚀 Live Application (Vercel)** | [https://frontend-peach-nine-9dyn34fhbi.vercel.app](https://frontend-peach-nine-9dyn34fhbi.vercel.app) | `Active (Production)` |
 | **🚀 Live Application (Render)** | [https://rag-document-ihnt.onrender.com](https://rag-document-ihnt.onrender.com) | `Active (Production)` |
 | **⚙️ Backend API Endpoint** | [https://rag-document-ihnt.onrender.com/api/v1](https://rag-document-ihnt.onrender.com/api/v1) | `Online` |
 | **🎯 JEE Predictor API** | [https://rag-document-ihnt.onrender.com/api/v1/predict](https://rag-document-ihnt.onrender.com/api/v1/predict) | `Interactive` |
