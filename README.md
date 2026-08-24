@@ -11,7 +11,7 @@
 [![Google Gemini API](https://img.shields.io/badge/Google%20Gemini-1.5%20Flash-4285F4?logo=google&logoColor=white)](https://ai.google.dev)
 [![Vercel Deployment](https://img.shields.io/badge/Vercel-Production-000000?logo=vercel&logoColor=white)](https://frontend-peach-nine-9dyn34fhbi.vercel.app)
 [![Render Deployment](https://img.shields.io/badge/Render-Active-46E3B7?logo=render&logoColor=white)](https://rag-document-ihnt.onrender.com)
-[![AP EAMCET Reference](https://img.shields.io/badge/Reference-CollegePipe.in%2Fapeamcet.html-blue)](https://collegepipe.in/apeamcet.html)
+[![AP EAMCET Live Portal](https://img.shields.io/badge/AP%20EAMCET-Live%20Portal-007ACC?logo=react&logoColor=white)](https://collegepipe.in/apeamcet.html)
 
 > **UniGuide AI & AP EAMCET Predictor** is a production-ready, AI-powered college prediction, RAG-driven university assistant, and counselling decision-support platform for **JEE Main / Advanced** and **AP EAMCET / AP EAPCET** aspirants. Powered by Retrieval-Augmented Generation (RAG), ChromaDB vector search, Google Gemini AI, MongoDB Atlas metadata persistence, and a multi-tiered admission probability engine, UniGuide AI transforms complex historical cutoff data into actionable, transparent, and explainable recommendations.
 
@@ -27,7 +27,7 @@
 | **⚙️ Backend API Base** | [https://rag-document-ihnt.onrender.com/api/v1](https://rag-document-ihnt.onrender.com/api/v1) | `Online (REST API)` | FastAPI REST API router endpoint |
 | **🎯 Predictor API** | [https://rag-document-ihnt.onrender.com/api/v1/predict](https://rag-document-ihnt.onrender.com/api/v1/predict) | `Interactive` | POST endpoint for score/rank prediction & choice matrix |
 | **📖 OpenAPI Swagger Docs** | [https://rag-document-ihnt.onrender.com/docs](https://rag-document-ihnt.onrender.com/docs) | `Live Specs` | Interactive API testing playground and schema viewer |
-| **🔗 Reference Portal** | [https://collegepipe.in/apeamcet.html](https://collegepipe.in/apeamcet.html) | `External Reference` | AP EAMCET / AP EAPCET college predictor reference specification |
+| **🚀 Live Application (AP EAMCET)** | [https://collegepipe.in/apeamcet.html](https://collegepipe.in/apeamcet.html) | `Active (Production)` | AP EAMCET / AP EAPCET College Predictor Portal |
 
 ---
 
